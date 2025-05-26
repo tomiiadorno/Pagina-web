@@ -1,0 +1,156 @@
+function mostrarSeccion(seccion) {
+    document.getElementById('inicio').style.display = seccion === 'inicio' ? 'block' : 'none';
+    document.getElementById('reservas').style.display = seccion === 'reservas' ? 'block' : 'none';
+    document.getElementById('productos').style.display = seccion === 'productos' ? 'block' : 'none';
+}
+
+// Turnos: 15 a 23
+function cargarHorasTurno() {
+    const selectHoras = document.getElementById('horaTurno');
+    for (let hora = 15; hora <= 23; hora++) {
+        const opcion = document.createElement('option');
+        opcion.value = hora;
+        opcion.textContent = `${hora}:00`;
+        selectHoras.appendChild(opcion);
+    }
+}
+
+// Estructura de precios
+const precios = {
+    5: 20000,
+    8: 30000,
+    11: 40000
+};
+
+// Cantidad total de canchas por tipo
+const disponibilidadTotal = {
+    5: 2,
+    8: 2,
+    11: 1
+};
+
+// Array de reservas
+const reservas = []; // { id, equipo, tipo, dia, hora, esFijo }
+let idReserva = 1;
+let reservaPendiente = null;
+
+// Mostrar reservas en la lista
+function mostrarReservas() {
+    const lista = document.getElementById('listaReservas');
+    lista.innerHTML = "";
+
+    reservas.forEach(reserva => {
+        const li = document.createElement('li');
+        li.innerText = `Equipo: ${reserva.equipo} | Cancha: Fútbol ${reserva.tipo} | Día: ${reserva.dia} | Hora: ${reserva.hora}:00`;
+
+        const btnEliminar = document.createElement('button');
+        btnEliminar.innerText = "Cancelar";
+        btnEliminar.addEventListener('click', () => {
+            const index = reservas.findIndex(r => r.id === reserva.id);
+            reservas.splice(index, 1);
+            mostrarReservas();
+            actualizarOpcionesTipoCancha(); // actualizamos disponibilidad
+        });
+
+        li.appendChild(btnEliminar);
+        lista.appendChild(li);
+    });
+}
+
+// Calcular cuántas canchas disponibles quedan
+function canchasDisponibles(tipo, dia, hora) {
+    const ocupadas = reservas.filter(r => r.tipo == tipo && r.dia === dia && r.hora == hora);
+    return disponibilidadTotal[tipo] - ocupadas.length;
+}
+
+// Actualizar opciones de tipo de cancha mostrando cuántas quedan
+function actualizarOpcionesTipoCancha() {
+    const select = document.getElementById('tipoCancha');
+    const dia = document.getElementById('diaReserva').value;
+    const hora = document.getElementById('horaTurno').value;
+
+    select.innerHTML = ""; // limpiamos opciones anteriores
+
+    [5, 8, 11].forEach(tipo => {
+        const disponibles = (dia && hora) ? canchasDisponibles(tipo, dia, hora) : disponibilidadTotal[tipo];
+        const opcion = document.createElement('option');
+        opcion.value = tipo;
+        opcion.textContent = `Fútbol ${tipo} (${disponibles})`;
+        opcion.disabled = disponibles <= 0;
+        select.appendChild(opcion);
+    });
+}
+
+// Verificar si hay lugar para una cancha
+function hayDisponibilidad(tipo, dia, hora) {
+    return canchasDisponibles(tipo, dia, hora) > 0;
+}
+
+// DOM Loaded
+document.addEventListener('DOMContentLoaded', () => {
+    cargarHorasTurno();
+    actualizarOpcionesTipoCancha();
+
+    const diaInput = document.getElementById('diaReserva');
+    const horaInput = document.getElementById('horaTurno');
+
+    diaInput.addEventListener('change', actualizarOpcionesTipoCancha);
+    horaInput.addEventListener('change', actualizarOpcionesTipoCancha);
+
+    const btnCalcular = document.getElementById('calcularPrecio');
+    const btnConfirmar = document.getElementById('confirmarReserva');
+
+    btnCalcular.addEventListener('click', () => {
+        const nombre = document.getElementById('nombreEquipo').value.trim();
+        const dia = document.getElementById('diaReserva').value;
+        const tipo = document.getElementById('tipoCancha').value;
+        const hora = document.getElementById('horaTurno').value;
+        const esFijo = document.getElementById('esFijo').checked;
+
+        if (nombre === "" || dia === "" || !tipo || !hora) {
+            alert("Completá todos los campos.");
+            return;
+        }
+
+        // Validar que la fecha no sea pasada
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0); // quitar hora
+        const fechaElegida = new Date(dia);
+
+        if (fechaElegida < hoy) {
+            alert("No se puede reservar para una fecha pasada.");
+            return;
+        }
+
+
+        if (!hayDisponibilidad(tipo, dia, hora)) {
+            alert("No hay disponibilidad para ese turno.");
+            return;
+        }
+
+        const precio = precios[tipo];
+        document.getElementById('textoPrecio').innerText = `Total a pagar: $${precio}`;
+        document.getElementById('confirmacionPago').style.display = "block";
+
+        reservaPendiente = {
+            id: idReserva++,
+            equipo: nombre,
+            tipo: tipo,
+            dia: dia,
+            hora: hora,
+            esFijo: esFijo
+        };
+    });
+
+    btnConfirmar.addEventListener('click', () => {
+        if (reservaPendiente) {
+            reservas.push(reservaPendiente);
+            mostrarReservas();
+            reservaPendiente = null;
+
+            document.getElementById('formReserva').reset();
+            document.getElementById('confirmacionPago').style.display = "none";
+            actualizarOpcionesTipoCancha();
+        }
+    });
+});

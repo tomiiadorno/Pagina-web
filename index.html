@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Gestor de Canchas</title>
+</head>
+
+<body>
+
+    <header>
+        <h1>Gestor de Reservas de Canchas</h1>
+        <nav>
+            <button onclick="mostrarSeccion('inicio')">Inicio</button>
+            <button onclick="mostrarSeccion('reservas')">Reservas</button>
+            <button onclick="mostrarSeccion('productos')">Productos</button>
+        </nav>
+    </header>
+
+    <main>
+        <!-- 🏠 INICIO -->
+        <section id="inicio" style="display: block;">
+            <h2>¡Bienvenido!</h2>
+            <p>Organizá tus partidos fácilmente y encontrá productos ideales para tu equipo.</p>
+            <p>Usá el menú de arriba para comenzar.</p>
+
+            <hr>
+            <section id="nosotros">
+                <h3>Nosotros</h3>
+                <p>Somos un equipo apasionado por el deporte que busca facilitar la organización de partidos y brindar
+                    acceso a productos deportivos de calidad. Nuestra plataforma está diseñada para clubes, equipos
+                    amateurs y cualquier persona que quiera reservar una cancha de forma rápida, simple y segura.</p>
+            </section>
+        </section>
+
+        <!-- ⚽ RESERVAS -->
+        <section id="reservas" style="display: none;">
+            <h2>Reservar una cancha</h2>
+
+            <form id="formReserva">
+                <input type="text" id="nombreEquipo" placeholder="Nombre del equipo" required>
+
+                <input type="date" id="diaReserva" required>
+
+                <select id="tipoCancha" required>
+                    <option value="5">Fútbol 5</option>
+                    <option value="8">Fútbol 8</option>
+                    <option value="11">Fútbol 11</option>
+                </select>
+
+                <select id="horaTurno" required>
+                    <!-- Turnos 15 a 23 se generan por JS -->
+                </select>
+
+                <label>
+                    <input type="checkbox" id="esFijo">
+                    Turno fijo semanal
+                </label>
+
+                <button type="button" id="calcularPrecio">Calcular precio</button>
+            </form>
+
+            <!-- Sección de confirmación de pago -->
+            <div id="confirmacionPago" style="display: none;">
+                <p id="textoPrecio"></p>
+                <button id="confirmarReserva">Confirmar y pagar</button>
+            </div>
+
+            <h3>Reservas realizadas</h3>
+            <ul id="listaReservas"></ul>
+        </section>
+
+        <!-- 🛍️ PRODUCTOS -->
+        <section id="productos" style="display: none;">
+            <h2>Productos deportivos</h2>
+
+            <form id="formProducto">
+                <input type="text" id="nombreProducto" placeholder="Nombre del producto" required>
+                <input type="number" id="precioProducto" placeholder="Precio" min="0" required>
+                <button type="submit">Agregar producto</button>
+            </form>
+
+            <ul id="listaProductos"></ul>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
