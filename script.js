@@ -1,8 +1,7 @@
 function mostrarSeccion(seccion) {
     document.getElementById('inicio').style.display = seccion === 'inicio' ? 'block' : 'none';
     document.getElementById('reservas').style.display = seccion === 'reservas' ? 'block' : 'none';
-    document.getElementById('productos').style.display = seccion === 'productos' ? 'block' : 'none';
-}
+    }
 
 // Turnos: 15 a 23
 function cargarHorasTurno() {
