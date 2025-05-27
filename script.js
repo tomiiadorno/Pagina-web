@@ -49,7 +49,7 @@ function mostrarReservas() {
             const index = reservas.findIndex(r => r.id === reserva.id);
             reservas.splice(index, 1);
             mostrarReservas();
-            actualizarOpcionesTipoCancha(); // actualizamos disponibilidad
+            actualizarOpcionesTipoCancha();
         });
 
         li.appendChild(btnEliminar);
@@ -69,7 +69,7 @@ function actualizarOpcionesTipoCancha() {
     const dia = document.getElementById('diaReserva').value;
     const hora = document.getElementById('horaTurno').value;
 
-    select.innerHTML = ""; // limpiamos opciones anteriores
+    select.innerHTML = "";
 
     [5, 8, 11].forEach(tipo => {
         const disponibles = (dia && hora) ? canchasDisponibles(tipo, dia, hora) : disponibilidadTotal[tipo];
@@ -84,6 +84,26 @@ function actualizarOpcionesTipoCancha() {
 // Verificar si hay lugar para una cancha
 function hayDisponibilidad(tipo, dia, hora) {
     return canchasDisponibles(tipo, dia, hora) > 0;
+}
+
+// Obtener fechas del turno fijo desde la fecha seleccionada, hasta un mes después
+function obtenerFechasTurnoFijoDesde(diaStr) {
+    const fechaInicial = new Date(diaStr);
+    const diaSemana = fechaInicial.getDay();
+    const fechas = [];
+
+    const fechaFin = new Date(fechaInicial);
+    fechaFin.setMonth(fechaInicial.getMonth() + 1);
+
+    const f = new Date(fechaInicial);
+    while (f <= fechaFin) {
+        if (f.getDay() === diaSemana && f >= fechaInicial) {
+            fechas.push(f.toISOString().split('T')[0]);
+        }
+        f.setDate(f.getDate() + 1);
+    }
+
+    return fechas;
 }
 
 // DOM Loaded
@@ -112,31 +132,48 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Validar que la fecha no sea pasada
         const hoy = new Date();
-        hoy.setHours(0, 0, 0, 0); // quitar hora
+        hoy.setHours(0, 0, 0, 0);
         const fechaElegida = new Date(dia);
-
         if (fechaElegida < hoy) {
             alert("No se puede reservar para una fecha pasada.");
             return;
         }
 
+        const precio = precios[tipo];
+        let fechasReserva = [dia];
 
-        if (!hayDisponibilidad(tipo, dia, hora)) {
-            alert("No hay disponibilidad para ese turno.");
-            return;
+        if (esFijo) {
+            fechasReserva = obtenerFechasTurnoFijoDesde(dia);
+            const noDisponibles = fechasReserva.filter(f => !hayDisponibilidad(tipo, f, hora));
+            if (noDisponibles.length > 0) {
+                alert("No hay disponibilidad para al menos una de las fechas del turno fijo.");
+                return;
+            }
+        } else {
+            if (!hayDisponibilidad(tipo, dia, hora)) {
+                alert("No hay disponibilidad para ese turno.");
+                return;
+            }
         }
 
-        const precio = precios[tipo];
-        document.getElementById('textoPrecio').innerText = `Total a pagar: $${precio}`;
+        const total = precio * fechasReserva.length;
+        const textoPrecio = document.getElementById('textoPrecio');
+
+        // Mostrar lista de días con viñetas
+        textoPrecio.innerHTML = `
+            <p>Total a pagar: $${total} (${fechasReserva.length} turno/s)</p>
+            <p>Días:</p>
+            <ul>${fechasReserva.map(f => `<li>${f}</li>`).join('')}</ul>
+        `;
+
         document.getElementById('confirmacionPago').style.display = "block";
 
         reservaPendiente = {
-            id: idReserva++,
+            id: idReserva,
             equipo: nombre,
             tipo: tipo,
-            dia: dia,
+            fechas: fechasReserva,
             hora: hora,
             esFijo: esFijo
         };
@@ -144,7 +181,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     btnConfirmar.addEventListener('click', () => {
         if (reservaPendiente) {
-            reservas.push(reservaPendiente);
+            const { equipo, tipo, fechas, hora, esFijo } = reservaPendiente;
+
+            fechas.forEach(fecha => {
+                reservas.push({
+                    id: idReserva++,
+                    equipo,
+                    tipo,
+                    dia: fecha,
+                    hora,
+                    esFijo
+                });
+            });
+
             mostrarReservas();
             reservaPendiente = null;
 
