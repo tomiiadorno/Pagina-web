@@ -14,55 +14,97 @@ function cargarHorasTurno() {
     }
 }
 
-// Estructura de precios
 const precios = {
     5: 20000,
     8: 30000,
     11: 40000
 };
 
-// Cantidad total de canchas por tipo
 const disponibilidadTotal = {
     5: 2,
     8: 2,
     11: 1
 };
 
-// Array de reservas
-const reservas = []; // { id, equipo, tipo, dia, hora, esFijo }
+const reservas = [];
 let idReserva = 1;
 let reservaPendiente = null;
 
-// Mostrar reservas en la lista
+// Guardar en localStorage
+function guardarReservasEnLocalStorage() {
+    localStorage.setItem('reservas', JSON.stringify(reservas));
+}
+
+// Cargar reservas y filtrar pasadas
+function cargarReservasDesdeLocalStorage() {
+    const data = localStorage.getItem('reservas');
+    if (data) {
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        const ahora = new Date();
+
+        const cargadas = JSON.parse(data);
+        for (let i = 0; i < cargadas.length; i++) {
+            const r = cargadas[i];
+            const fecha = new Date(r.dia);
+            if (
+                fecha > hoy ||
+                (fecha.toDateString() === hoy.toDateString() && r.hora > ahora.getHours())
+            ) {
+                reservas.push(r);
+            }
+        }
+
+        if (reservas.length > 0) {
+            let maxId = reservas[0].id;
+            for (let i = 1; i < reservas.length; i++) {
+                if (reservas[i].id > maxId) {
+                    maxId = reservas[i].id;
+                }
+            }
+            idReserva = maxId + 1;
+        } else {
+            idReserva = 1;
+        }
+
+        mostrarReservas();
+    }
+}
+
 function mostrarReservas() {
     const lista = document.getElementById('listaReservas');
     lista.innerHTML = "";
 
-    reservas.forEach(reserva => {
+    for (let i = 0; i < reservas.length; i++) {
+        const reserva = reservas[i];
         const li = document.createElement('li');
         li.innerText = `Equipo: ${reserva.equipo} | Cancha: Fútbol ${reserva.tipo} | Día: ${reserva.dia} | Hora: ${reserva.hora}:00`;
 
         const btnEliminar = document.createElement('button');
         btnEliminar.innerText = "Cancelar";
-        btnEliminar.addEventListener('click', () => {
-            const index = reservas.findIndex(r => r.id === reserva.id);
-            reservas.splice(index, 1);
+        btnEliminar.addEventListener('click', function () {
+            reservas.splice(i, 1);
             mostrarReservas();
             actualizarOpcionesTipoCancha();
+            guardarReservasEnLocalStorage();
         });
 
         li.appendChild(btnEliminar);
         lista.appendChild(li);
-    });
+    }
 }
 
-// Calcular cuántas canchas disponibles quedan
 function canchasDisponibles(tipo, dia, hora) {
-    const ocupadas = reservas.filter(r => r.tipo == tipo && r.dia === dia && r.hora == hora);
-    return disponibilidadTotal[tipo] - ocupadas.length;
+    let ocupadas = 0;
+    for (let i = 0; i < reservas.length; i++) {
+        const r = reservas[i];
+        if (r.tipo == tipo && r.dia === dia && r.hora == hora) {
+            ocupadas++;
+        }
+    }
+    return disponibilidadTotal[tipo] - ocupadas;
 }
 
-// Actualizar opciones de tipo de cancha mostrando cuántas quedan
 function actualizarOpcionesTipoCancha() {
     const select = document.getElementById('tipoCancha');
     const dia = document.getElementById('diaReserva').value;
@@ -70,22 +112,22 @@ function actualizarOpcionesTipoCancha() {
 
     select.innerHTML = "";
 
-    [5, 8, 11].forEach(tipo => {
+    const tipos = [5, 8, 11];
+    for (let i = 0; i < tipos.length; i++) {
+        const tipo = tipos[i];
         const disponibles = (dia && hora) ? canchasDisponibles(tipo, dia, hora) : disponibilidadTotal[tipo];
         const opcion = document.createElement('option');
         opcion.value = tipo;
         opcion.textContent = `Fútbol ${tipo} (${disponibles})`;
         opcion.disabled = disponibles <= 0;
         select.appendChild(opcion);
-    });
+    }
 }
 
-// Verificar si hay lugar para una cancha
 function hayDisponibilidad(tipo, dia, hora) {
     return canchasDisponibles(tipo, dia, hora) > 0;
 }
 
-// Obtener fechas del turno fijo desde la fecha seleccionada, hasta un mes después
 function obtenerFechasTurnoFijoDesde(diaStr) {
     const fechaInicial = new Date(diaStr);
     const diaSemana = fechaInicial.getDay();
@@ -105,9 +147,10 @@ function obtenerFechasTurnoFijoDesde(diaStr) {
     return fechas;
 }
 
-// DOM Loaded
-document.addEventListener('DOMContentLoaded', () => {
+// DOM loaded
+document.addEventListener('DOMContentLoaded', function () {
     cargarHorasTurno();
+    cargarReservasDesdeLocalStorage();
     actualizarOpcionesTipoCancha();
 
     const diaInput = document.getElementById('diaReserva');
@@ -119,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnCalcular = document.getElementById('calcularPrecio');
     const btnConfirmar = document.getElementById('confirmarReserva');
 
-    btnCalcular.addEventListener('click', () => {
+    btnCalcular.addEventListener('click', function () {
         const nombre = document.getElementById('nombreEquipo').value.trim();
         const dia = document.getElementById('diaReserva').value;
         const tipo = document.getElementById('tipoCancha').value;
@@ -144,10 +187,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (esFijo) {
             fechasReserva = obtenerFechasTurnoFijoDesde(dia);
-            const noDisponibles = fechasReserva.filter(f => !hayDisponibilidad(tipo, f, hora));
-            if (noDisponibles.length > 0) {
-                alert("No hay disponibilidad para al menos una de las fechas del turno fijo.");
-                return;
+            for (let i = 0; i < fechasReserva.length; i++) {
+                if (!hayDisponibilidad(tipo, fechasReserva[i], hora)) {
+                    alert("No hay disponibilidad para al menos una de las fechas del turno fijo.");
+                    return;
+                }
             }
         } else {
             if (!hayDisponibilidad(tipo, dia, hora)) {
@@ -159,11 +203,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const total = precio * fechasReserva.length;
         const textoPrecio = document.getElementById('textoPrecio');
 
-        // Mostrar lista de días con viñetas
+        let ul = "<ul>";
+        for (let i = 0; i < fechasReserva.length; i++) {
+            ul += "<li>" + fechasReserva[i] + "</li>";
+        }
+        ul += "</ul>";
+
         textoPrecio.innerHTML = `
             <p>Total a pagar: $${total} (${fechasReserva.length} turno/s)</p>
             <p>Días:</p>
-            <ul>${fechasReserva.map(f => `<li>${f}</li>`).join('')}</ul>
+            ${ul}
         `;
 
         document.getElementById('confirmacionPago').style.display = "block";
@@ -178,24 +227,29 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     });
 
-    btnConfirmar.addEventListener('click', () => {
+    btnConfirmar.addEventListener('click', function () {
         if (reservaPendiente) {
-            const { equipo, tipo, fechas, hora, esFijo } = reservaPendiente;
+            const equipo = reservaPendiente.equipo;
+            const tipo = reservaPendiente.tipo;
+            const fechas = reservaPendiente.fechas;
+            const hora = reservaPendiente.hora;
+            const esFijo = reservaPendiente.esFijo;
 
-            fechas.forEach(fecha => {
+            for (let i = 0; i < fechas.length; i++) {
                 reservas.push({
                     id: idReserva++,
-                    equipo,
-                    tipo,
-                    dia: fecha,
-                    hora,
-                    esFijo
+                    equipo: equipo,
+                    tipo: tipo,
+                    dia: fechas[i],
+                    hora: hora,
+                    esFijo: esFijo
                 });
-            });
+            }
 
             mostrarReservas();
-            reservaPendiente = null;
+            guardarReservasEnLocalStorage();
 
+            reservaPendiente = null;
             document.getElementById('formReserva').reset();
             document.getElementById('confirmacionPago').style.display = "none";
             actualizarOpcionesTipoCancha();
