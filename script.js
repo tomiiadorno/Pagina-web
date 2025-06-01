@@ -30,12 +30,10 @@ const reservas = [];
 let idReserva = 1;
 let reservaPendiente = null;
 
-// Guardar en localStorage
 function guardarReservasEnLocalStorage() {
     localStorage.setItem('reservas', JSON.stringify(reservas));
 }
 
-// Cargar reservas y filtrar pasadas
 function cargarReservasDesdeLocalStorage() {
     const data = localStorage.getItem('reservas');
     if (data) {
@@ -80,15 +78,33 @@ function mostrarReservas() {
         const li = document.createElement('li');
         li.innerText = `Equipo: ${reserva.equipo} | Cancha: Fútbol ${reserva.tipo} | Día: ${reserva.dia} | Hora: ${reserva.hora}:00`;
 
+        const btnEditar = document.createElement('button');
+        btnEditar.innerText = "Editar";
+        btnEditar.addEventListener('click', function () {
+            document.getElementById('nombreEquipo').value = reserva.equipo;
+            document.getElementById('diaReserva').value = reserva.dia;
+            document.getElementById('tipoCancha').value = reserva.tipo;
+            document.getElementById('horaTurno').value = reserva.hora;
+            document.getElementById('esFijo').checked = reserva.esFijo;
+
+            reservaPendiente = reserva;
+            document.getElementById('confirmacionPago').style.display = "none";
+            actualizarOpcionesTipoCancha();
+        });
+
         const btnEliminar = document.createElement('button');
         btnEliminar.innerText = "Cancelar";
         btnEliminar.addEventListener('click', function () {
-            reservas.splice(i, 1);
-            mostrarReservas();
-            actualizarOpcionesTipoCancha();
-            guardarReservasEnLocalStorage();
+            const index = reservas.findIndex(r => r.id === reserva.id);
+            if (index !== -1) {
+                reservas.splice(index, 1);
+                mostrarReservas();
+                actualizarOpcionesTipoCancha();
+                guardarReservasEnLocalStorage();
+            }
         });
 
+        li.appendChild(btnEditar);
         li.appendChild(btnEliminar);
         lista.appendChild(li);
     }
@@ -147,7 +163,6 @@ function obtenerFechasTurnoFijoDesde(diaStr) {
     return fechas;
 }
 
-// DOM loaded
 document.addEventListener('DOMContentLoaded', function () {
     cargarHorasTurno();
     cargarReservasDesdeLocalStorage();
@@ -185,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const precio = precios[tipo];
         let fechasReserva = [dia];
 
-        if (esFijo) {
+        if (esFijo && !reservaPendiente) {
             fechasReserva = obtenerFechasTurnoFijoDesde(dia);
             for (let i = 0; i < fechasReserva.length; i++) {
                 if (!hayDisponibilidad(tipo, fechasReserva[i], hora)) {
@@ -200,8 +215,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        const total = precio * fechasReserva.length;
-        const textoPrecio = document.getElementById('textoPrecio');
+        // 🔧 Ajuste: si estamos editando, mostrar solo el precio de 1 turno.
+        const total = precio * (reservaPendiente ? 1 : fechasReserva.length);
 
         let ul = "<ul>";
         for (let i = 0; i < fechasReserva.length; i++) {
@@ -209,16 +224,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         ul += "</ul>";
 
+        const textoPrecio = document.getElementById('textoPrecio');
         textoPrecio.innerHTML = `
-            <p>Total a pagar: $${total} (${fechasReserva.length} turno/s)</p>
-            <p>Días:</p>
-            ${ul}
-        `;
+        <p>Total a pagar: $${total} (${reservaPendiente ? 1 : fechasReserva.length} turno/s)</p>
+        <p>Días:</p>
+        ${ul}
+    `;
 
         document.getElementById('confirmacionPago').style.display = "block";
 
         reservaPendiente = {
-            id: idReserva,
+            id: reservaPendiente && reservaPendiente.id ? reservaPendiente.id : idReserva,
             equipo: nombre,
             tipo: tipo,
             fechas: fechasReserva,
@@ -227,23 +243,29 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     });
 
+
     btnConfirmar.addEventListener('click', function () {
         if (reservaPendiente) {
-            const equipo = reservaPendiente.equipo;
-            const tipo = reservaPendiente.tipo;
-            const fechas = reservaPendiente.fechas;
-            const hora = reservaPendiente.hora;
-            const esFijo = reservaPendiente.esFijo;
-
-            for (let i = 0; i < fechas.length; i++) {
-                reservas.push({
-                    id: idReserva++,
-                    equipo: equipo,
-                    tipo: tipo,
-                    dia: fechas[i],
-                    hora: hora,
-                    esFijo: esFijo
-                });
+            if (reservas.find(r => r.id === reservaPendiente.id)) {
+                // Modo edición
+                const r = reservas.find(r => r.id === reservaPendiente.id);
+                r.equipo = reservaPendiente.equipo;
+                r.dia = reservaPendiente.fechas[0];
+                r.tipo = reservaPendiente.tipo;
+                r.hora = reservaPendiente.hora;
+                r.esFijo = reservaPendiente.esFijo;
+            } else {
+                // Modo crear
+                for (let i = 0; i < reservaPendiente.fechas.length; i++) {
+                    reservas.push({
+                        id: idReserva++,
+                        equipo: reservaPendiente.equipo,
+                        tipo: reservaPendiente.tipo,
+                        dia: reservaPendiente.fechas[i],
+                        hora: reservaPendiente.hora,
+                        esFijo: reservaPendiente.esFijo
+                    });
+                }
             }
 
             mostrarReservas();
