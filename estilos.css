@@ -1,4 +1,4 @@
-/* Reset básico */
+/* Reset y base */
 * {
     margin: 0;
     padding: 0;
@@ -13,14 +13,12 @@ body, html {
     line-height: 1.6;
 }
 
-/* Encabezado */
+/* Header */
 header {
     background-color: #333;
     color: #fff;
     padding: 15px;
     text-align: center;
-    position: relative;
-    z-index: 10;
 }
 
 nav {
@@ -61,67 +59,37 @@ nav button:hover::after {
     transform: scaleX(1);
 }
 
+/* Secciones con fondo */
+#inicio, #reservas {
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+}
 
-/* Sección de inicio con fondo */
 #inicio {
     background-image: url('futbol_fondo.jpg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    text-align: center;
-    color: white;
-    position: relative;
-    z-index: 1;
 }
 
-/* Sección de contacto */
-#contacto {
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 15px;
-    border-radius: 5px;
-    margin-top: 20px;
-}
-
-/* Sección de reservas con fondo */
 #reservas {
     background-image: url('reservas_fondo.jpg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    text-align: center;
-    color: white;
-    position: relative;
-    z-index: 1;
 }
 
-.contenido-inicio,
-.contenido-reservas {
+/* Contenedores de contenido */
+.contenido-inicio, .contenido-reservas {
     background-color: rgba(0, 0, 0, 0.6);
     padding: 30px;
     border-radius: 10px;
     max-width: 600px;
     width: 90%;
-    color: white;
-    margin: auto; /* Centrar horizontal y verticalmente */
-}
-
-
-/* Títulos */
-#inicio h2,
-#reservas h2 {
-    margin-bottom: 20px;
-    font-size: 2rem;
+    margin: auto;
     color: white;
 }
 
@@ -132,8 +100,7 @@ nav button:hover::after {
     margin-bottom: 20px;
 }
 
-#formReserva input,
-#formReserva select {
+#formReserva input, #formReserva select {
     padding: 10px;
     border: none;
     border-radius: 5px;
@@ -181,6 +148,7 @@ nav button:hover::after {
     background-color: #0056b3;
 }
 
+/* Lista de reservas */
 #listaReservas {
     list-style-type: none;
     padding: 0;
@@ -213,6 +181,7 @@ nav button:hover::after {
     background-color: #c82333;
 }
 
+/* Viñetas centradas */
 #textoPrecio ul {
     list-style-type: disc;
     list-style-position: inside;
@@ -225,13 +194,21 @@ nav button:hover::after {
     margin-bottom: 5px;
 }
 
-/* Responsivo */
-@media (max-width: 600px) {
-    #inicio, #reservas {
-        padding: 20px;
-    }
-
+/* Responsive para móviles y landscape */
+@media screen and (max-width: 768px) {
     .contenido-inicio, .contenido-reservas {
         padding: 20px;
+        width: 95%;
+    }
+
+    #formReserva {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media screen and (orientation: landscape) and (max-height: 500px) {
+    .contenido-inicio, .contenido-reservas {
+        max-height: 90vh;
+        overflow-y: auto;
     }
 }

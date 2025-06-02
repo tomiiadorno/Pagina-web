@@ -19,7 +19,7 @@
 
     <main>
         <!-- 🏠 INICIO -->
-        <section id="inicio" class="fondo-inicio" style="display: block;">
+        <section id="inicio" style="display: flex;">
             <div class="contenido-inicio">
                 <h2>¡Bienvenido!</h2>
                 <p>Organizá tus partidos fácilmente con nuestro gestor de reservas.</p>
@@ -28,7 +28,7 @@
                     <p>Teléfono: 299 6048667</p>
                     <p>Email: <a href="mailto:canchas.contacto@gmail.com">canchas.contacto@gmail.com</a></p>
                     <p>Dirección: Juncal 3131, CABA</p>
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1161.3403511398872!2d-58.40801833692777!3d-34.58477310410525!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bcb5001d2d4867%3A0x2ed11d15855bc4c7!2sCanchas%20de%20F%C3%BAtbol!5e0!3m2!1ses!2sar!4v1748785963037!5m2!1ses!2sar" width="400" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1161.3403511398872!2d-58.40801833692777!3d-34.58477310410525!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bcb5001d2d4867%3A0x2ed11d15855bc4c7!2sCanchas%20de%20F%C3%BAtbol!5e0!3m2!1ses!2sar!4v1748785963037!5m2!1ses!2sar" width="100%" height="200" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
                 </section>
             </div>
         </section>
@@ -37,35 +37,28 @@
         <section id="reservas" style="display: none;">
             <div class="contenido-reservas">
                 <h2>Reservar una cancha</h2>
-
                 <form id="formReserva">
                     <input type="text" id="nombreEquipo" placeholder="Nombre del equipo" required>
+                    <label for="diaReserva">Día:</label>
                     <input type="date" id="diaReserva" required>
-
+                    <label for="tipoCancha">Cancha:</label>
                     <select id="tipoCancha" required>
                         <option value="5">Fútbol 5</option>
                         <option value="8">Fútbol 8</option>
                         <option value="11">Fútbol 11</option>
                     </select>
-
-                    <select id="horaTurno" required>
-                        <!-- Turnos 15 a 23 se generan por JS -->
-                    </select>
-
+                    <label for="horaTurno">Horario:</label>
+                    <select id="horaTurno" required></select>
                     <label>
                         <input type="checkbox" id="esFijo">
                         Turno fijo semanal
                     </label>
-
                     <button type="button" id="calcularPrecio">Calcular precio</button>
                 </form>
-
-                <!-- Sección de confirmación de pago -->
                 <div id="confirmacionPago" style="display: none;">
                     <p id="textoPrecio"></p>
                     <button id="confirmarReserva">Confirmar y pagar</button>
                 </div>
-
                 <h3>Reservas realizadas</h3>
                 <ul id="listaReservas"></ul>
             </div>
@@ -74,5 +67,4 @@
 
     <script src="script.js"></script>
 </body>
-
 </html>
