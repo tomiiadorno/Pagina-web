@@ -3,76 +3,110 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Gestor de Canchas - Tomas Adorno</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Gestor de Canchas - Tomas Adorno</title>
     <link rel="stylesheet" href="estilos.css">
 </head>
 
 <body>
 
     <header>
-        <h1>Gestor de Reservas de Canchas</h1>
-        <nav>
-            <button onclick="mostrarSeccion('inicio')">Inicio</button>
-            <button onclick="mostrarSeccion('reservas')">Reservas</button>
-        </nav>
+        <div class="container">
+            <h1>Gestor de Reservas de Canchas</h1>
+            <nav>
+                <button id="btnInicio" class="active">Inicio</button>
+                <button id="btnReservas">Reservas</button>
+            </nav>
+        </div>
     </header>
 
     <main>
         <!-- 🏠 INICIO -->
-        <section id="inicio" class="fondo-inicio" style="display: block;">
-            <div class="contenido-inicio">
-                <h2>¡Bienvenido!</h2>
-                <p>Organizá tus partidos fácilmente con nuestro gestor de reservas.</p>
+        <section id="inicio" class="seccion-fondo">
+            <div class="contenido-seccion contenido-inicio">
+                <h2>¡Bienvenido a Tu Gestor Favorito!</h2>
+                <p>Organiza tus partidos de forma rápida y sencilla con nuestro moderno gestor de reservas. Encuentra la cancha perfecta, invita a tu equipo y ¡a jugar!</p>
+                
+                <section id="infoAdicional">
+                    <h3>¿Por qué elegirnos?</h3>
+                    <ul>
+                        <li>⚽ Variedad de canchas: Fútbol 5, 8 y 11.</li>
+                        <li>📅 Sistema de turnos fijos y esporádicos.</li>
+                        <li>💳 Pagos seguros y confirmación instantánea.</li>
+                        <li>📍 Ubicación céntrica y de fácil acceso.</li>
+                    </ul>
+                </section>
+
                 <section id="contacto">
                     <h3>Contacto y Ubicación</h3>
-                    <p>Teléfono: 299 6048667</p>
-                    <p>Email: <a href="mailto:canchas.contacto@gmail.com">canchas.contacto@gmail.com</a></p>
-                    <p>Dirección: Juncal 3131, CABA</p>
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1161.3403511398872!2d-58.40801833692777!3d-34.58477310410525!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bcb5001d2d4867%3A0x2ed11d15855bc4c7!2sCanchas%20de%20F%C3%BAtbol!5e0!3m2!1ses!2sar!4v1748785963037!5m2!1ses!2sar" width="400" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    <address>
+                        <p>Teléfono: <a href="tel:+5492996048667">299 6048667</a></p>
+                        <p>Email: <a href="mailto:canchas.contacto@gmail.com">canchas.contacto@gmail.com</a></p>
+                        <p>Dirección: Juncal 3131, CABA</p>
+                    </address>
+                    <div class="mapa-container">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1161.3403511398872!2d-58.40801833692777!3d-34.58477310410525!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bcb5001d2d4867%3A0x2ed11d15855bc4c7!2sCanchas%20de%20F%C3%BAtbol!5e0!3m2!1ses!2sar!4v1748785963037!5m2!1ses!2sar" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
                 </section>
             </div>
         </section>
 
         <!-- ⚽ RESERVAS -->
-        <section id="reservas" style="display: none;">
-            <div class="contenido-reservas">
-                <h2>Reservar una cancha</h2>
+        <section id="reservas" class="seccion-fondo" style="display: none;">
+            <div class="contenido-seccion contenido-reservas">
+                <h2>Reservar una Cancha</h2>
 
                 <form id="formReserva">
-                    <input type="text" id="nombreEquipo" placeholder="Nombre del equipo" required>
-                    <input type="date" id="diaReserva" required>
-
-                    <select id="tipoCancha" required>
-                        <option value="5">Fútbol 5</option>
-                        <option value="8">Fútbol 8</option>
-                        <option value="11">Fútbol 11</option>
-                    </select>
-
-                    <select id="horaTurno" required>
-                        <!-- Turnos 15 a 23 se generan por JS -->
-                    </select>
-
-                    <label>
+                    <div class="form-group">
+                        <label for="nombreEquipo">Nombre del equipo:</label>
+                        <input type="text" id="nombreEquipo" placeholder="Ej: Los Campeones" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="diaReserva">Día de la reserva:</label>
+                        <input type="date" id="diaReserva" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tipoCancha">Tipo de cancha:</label>
+                        <select id="tipoCancha" required>
+                            <!-- Opciones se generan por JS -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="horaTurno">Hora del turno:</label>
+                        <select id="horaTurno" required>
+                            <!-- Turnos 15 a 23 se generan por JS -->
+                        </select>
+                    </div>
+                    <div class="form-group checkbox-group">
                         <input type="checkbox" id="esFijo">
-                        Turno fijo semanal
-                    </label>
+                        <label for="esFijo">Reservar turno fijo semanal (por 1 mes)</label>
+                    </div>
 
-                    <button type="button" id="calcularPrecio">Calcular precio</button>
+                    <button type="button" id="calcularPrecio" class="btn btn-primary">Calcular Precio</button>
                 </form>
 
-                <!-- Sección de confirmación de pago -->
                 <div id="confirmacionPago" style="display: none;">
-                    <p id="textoPrecio"></p>
-                    <button id="confirmarReserva">Confirmar y pagar</button>
+                    <h3>Detalle de Pre-Reserva</h3>
+                    <div id="textoPrecio"></div>
+                    <button id="confirmarReserva" class="btn btn-success">Confirmar y Pagar</button>
+                    <button id="cancelarPreReserva" class="btn btn-warning">Modificar Datos</button>
                 </div>
 
-                <h3>Reservas realizadas</h3>
-                <ul id="listaReservas"></ul>
+                <div class="reservas-listado">
+                    <h3>Mis Reservas Activas</h3>
+                    <ul id="listaReservas">
+                        <!-- Las reservas se listan aquí -->
+                    </ul>
+                </div>
             </div>
         </section>
     </main>
 
+    <footer>
+        <div class="container">
+            <p>© 2024 Gestor de Canchas "Tu Point Deportivo" - Tomas Adorno. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
     <script src="script.js"></script>
 </body>
-
 </html>
