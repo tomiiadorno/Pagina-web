@@ -210,17 +210,33 @@ nav button:hover::after {
     }
 }
 
-/* Responsive para vertical */
+/* Responsive para vertical (portrait) */
 @media screen and (max-width: 600px) and (orientation: portrait) {
     .contenido-inicio, .contenido-reservas {
-        width: 100%;
-        max-width: 100%;
+        width: 95%;
+        max-width: 95%;
+        height: 90vh;
         padding: 40px 20px;
-        font-size: 1.1rem;
+        font-size: 1.2rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
     #inicio, #reservas {
         padding: 10px;
+    }
+
+    #formReserva {
+        gap: 15px;
+    }
+
+    #formReserva input, #formReserva select {
+        font-size: 1.1rem;
+    }
+
+    #confirmacionPago p {
+        font-size: 1.1rem;
     }
 }
 
