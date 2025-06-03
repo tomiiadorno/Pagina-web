@@ -17,16 +17,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const confirmacionPagoDiv = document.getElementById('confirmacionPago');
     const textoPrecioP = document.getElementById('textoPrecio');
     const btnConfirmarReserva = document.getElementById('confirmarReserva');
-    const btnCancelarPreReserva = document.getElementById('cancelarPreReserva'); // Nuevo botón
+    const btnCancelarPreReserva = document.getElementById('cancelarPreReserva');
 
     const listaReservasUl = document.getElementById('listaReservas');
 
-    // Configuración
     const precios = { 5: 20000, 8: 30000, 11: 40000 };
     const disponibilidadTotal = { 5: 2, 8: 2, 11: 1 };
     let reservas = [];
     let idReserva = 1;
-    let reservaPendiente = null; // Almacena datos de la reserva actual (nueva o para editar)
+    let reservaPendiente = null;
 
     // --- NAVEGACIÓN ---
     function mostrarSeccion(seccionId) {
@@ -49,7 +48,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // --- LÓGICA DE RESERVAS ---
 
-    // Turnos: 15 a 23
     function cargarHorasTurno() {
         for (let hora = 15; hora <= 23; hora++) {
             const opcion = document.createElement('option');
@@ -67,13 +65,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const data = localStorage.getItem('reservas');
         if (data) {
             const hoy = new Date();
-            hoy.setHours(0, 0, 0, 0); // Medianoche de hoy
-            const ahora = new Date(); // Fecha y hora actual
-
+            hoy.setHours(0, 0, 0, 0); 
+            const ahora = new Date(); 
             const cargadas = JSON.parse(data);
             reservas = cargadas.filter(r => {
-                const fechaReserva = new Date(r.dia + 'T' + r.hora + ':00:00'); // Asegurar que la hora se tome bien
-                return fechaReserva >= ahora; // Solo reservas futuras o de hoy si la hora no pasó
+                const fechaReserva = new Date(r.dia + 'T' + r.hora + ':00:00');
+                return fechaReserva >= ahora;
             });
 
             if (reservas.length > 0) {
@@ -86,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function mostrarReservas() {
-        listaReservasUl.innerHTML = ""; // Limpiar lista
+        listaReservasUl.innerHTML = "";
 
         const reservasOrdenadas = [...reservas].sort((a, b) => {
             const fechaA = new Date(a.dia + 'T' + a.hora + ':00:00');
@@ -126,16 +123,6 @@ document.addEventListener('DOMContentLoaded', function () {
             btnEliminar.classList.add('btn', 'btn-danger');
             btnEliminar.addEventListener('click', () => eliminarReserva(reserva.id));
 
-            // No se puede editar un turno fijo completo, solo una instancia.
-            // O permitir editar solo si es el "original" de un turno fijo.
-            if (reserva.esFijoOriginal) {
-                // Podríamos permitir editar datos generales del turno fijo (equipo)
-                // pero no la fecha/hora que afectaría a todos.
-                // Por simplicidad, deshabilitamos la edición completa de turnos fijos.
-                // Se pueden cancelar individualmente.
-            }
-
-
             accionesDiv.appendChild(btnEditar);
             accionesDiv.appendChild(btnEliminar);
 
@@ -146,17 +133,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function cargarReservaParaEditar(reserva) {
-        // Solo se puede editar una reserva que no sea parte de un "turno fijo" generado automáticamente
-        // O si es la reserva "original" que generó el turno fijo.
-        // Por ahora, simplificamos: solo se pueden editar reservas no fijas o la primera de un fijo.
         if (reserva.esFijo && !reserva.esFijoOriginal && reservas.some(r => r.id !== reserva.id && r.equipo === reserva.equipo && r.esFijoOriginal)) {
             alert("Las instancias de un turno fijo recurrente no se pueden editar individualmente de esta forma. Cancele y cree una nueva si es necesario, o edite la reserva original del turno fijo (si aplica).");
-            // Para una implementación más completa, se podría permitir cambiar la hora de *esta* instancia
-            // o preguntar si se quieren cambiar todas las futuras. Es complejo.
-            // Por ahora, no permitimos editar instancias secundarias de turnos fijos.
-            // Permitiremos editar la "primera" si marcamos cuál es.
-            // Mejor aún: no se puede editar un turno fijo, solo cancelarlo completo o instancias.
-            // Si queremos editar, debe ser la reserva individual.
             if (reserva.esFijo) {
                 alert("Los turnos fijos no se pueden editar en su totalidad. Puede cancelar instancias individuales o el turno completo (cancelando cada una).");
                 return;
@@ -168,15 +146,14 @@ document.addEventListener('DOMContentLoaded', function () {
         diaReservaInput.value = reserva.dia;
         tipoCanchaSelect.value = reserva.tipo;
         horaTurnoSelect.value = reserva.hora;
-        esFijoCheckbox.checked = reserva.esFijoOriginal || reserva.esFijo; // Si es la original o una instancia
-        esFijoCheckbox.disabled = reserva.esFijo && !reserva.esFijoOriginal; // No cambiar si es instancia
+        esFijoCheckbox.checked = reserva.esFijoOriginal || reserva.esFijo; 
+        esFijoCheckbox.disabled = reserva.esFijo && !reserva.esFijoOriginal; 
 
-        // Guardamos la reserva que se está editando. Importante: pasar el ID.
-        reservaPendiente = { ...reserva }; // Clonar para no modificar la original hasta confirmar
+        reservaPendiente = { ...reserva };
 
         confirmacionPagoDiv.style.display = "none";
         btnCalcularPrecio.textContent = "Actualizar Precio/Disponibilidad";
-        actualizarOpcionesTipoCancha(); // Actualizar disponibilidad
+        actualizarOpcionesTipoCancha();
     }
 
     function eliminarReserva(idReservaAEliminar) {
@@ -185,14 +162,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         let mensajeConfirmacion = `¿Seguro que deseas cancelar la reserva para "${reservaAEliminar.equipo}" el día ${new Date(reservaAEliminar.dia + 'T00:00:00').toLocaleDateString()} a las ${reservaAEliminar.hora}:00?`;
 
-        // Si es una reserva que originó un turno fijo, advertir que se cancelarán todas las instancias futuras.
         if (reservaAEliminar.esFijoOriginal) {
             mensajeConfirmacion = `Esta es una reserva original de un turno fijo. Cancelarla eliminará TODAS las instancias futuras de este turno fijo para "${reservaAEliminar.equipo}". ¿Deseas continuar?`;
         }
 
         if (confirm(mensajeConfirmacion)) {
             if (reservaAEliminar.esFijoOriginal) {
-                // Eliminar todas las reservas futuras asociadas a este turno fijo original
                 const equipoOriginal = reservaAEliminar.equipo;
                 const horaOriginal = reservaAEliminar.hora;
                 const tipoOriginal = reservaAEliminar.tipo;
@@ -201,7 +176,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     !(r.equipo === equipoOriginal && r.hora === horaOriginal && r.tipo === tipoOriginal && r.esFijo && new Date(r.dia) >= new Date(reservaAEliminar.dia))
                 );
             } else {
-                // Eliminar solo esta instancia
                 reservas = reservas.filter(r => r.id !== idReservaAEliminar);
             }
 
@@ -222,9 +196,9 @@ document.addEventListener('DOMContentLoaded', function () {
     function actualizarOpcionesTipoCancha() {
         const dia = diaReservaInput.value;
         const hora = horaTurnoSelect.value;
-        const valorActual = tipoCanchaSelect.value; // Guardar valor actual para intentar restaurarlo
+        const valorActual = tipoCanchaSelect.value;
 
-        tipoCanchaSelect.innerHTML = ""; // Limpiar opciones
+        tipoCanchaSelect.innerHTML = "";
 
         [5, 8, 11].forEach(tipo => {
             const disponibles = (dia && hora) ? canchasDisponibles(tipo, dia, hora) : disponibilidadTotal[tipo];
@@ -234,11 +208,9 @@ document.addEventListener('DOMContentLoaded', function () {
             opcion.disabled = disponibles <= 0;
             tipoCanchaSelect.appendChild(opcion);
         });
-        // Intentar restaurar la selección previa si aún es válida
         if (Array.from(tipoCanchaSelect.options).some(opt => opt.value === valorActual && !opt.disabled)) {
             tipoCanchaSelect.value = valorActual;
         } else {
-            // Seleccionar la primera opción no deshabilitada si la anterior ya no es válida
             const primeraOpcionValida = Array.from(tipoCanchaSelect.options).find(opt => !opt.disabled);
             if (primeraOpcionValida) {
                 tipoCanchaSelect.value = primeraOpcionValida.value;
@@ -251,35 +223,32 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function obtenerFechasTurnoFijoDesde(diaStr) {
-        const fechaInicial = new Date(diaStr + 'T00:00:00'); // Asegurar que se tome la zona horaria local
+        const fechaInicial = new Date(diaStr + 'T00:00:00');
         const fechas = [];
         const hoy = new Date();
         hoy.setHours(0, 0, 0, 0);
 
-        // Turno fijo por 1 mes (4 semanas es más predecible que "un mes")
-        for (let i = 0; i < 4; i++) { // 4 semanas
+        for (let i = 0; i < 4; i++) { 
             const nuevaFecha = new Date(fechaInicial);
             nuevaFecha.setDate(fechaInicial.getDate() + (i * 7));
-            if (nuevaFecha >= hoy) { // Solo fechas futuras o hoy
+            if (nuevaFecha >= hoy) {
                 fechas.push(nuevaFecha.toISOString().split('T')[0]);
             }
         }
         return fechas;
     }
 
-    // Configurar el atributo min para el input de fecha
     function setMinDate() {
         const today = new Date();
         const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0'); // Enero es 0
+        const mm = String(today.getMonth() + 1).padStart(2, '0'); 
         const dd = String(today.getDate()).padStart(2, '0');
         diaReservaInput.min = `${yyyy}-${mm}-${dd}`;
     }
 
-    // --- MANEJADORES DE EVENTOS DEL FORMULARIO ---
     diaReservaInput.addEventListener('change', actualizarOpcionesTipoCancha);
     horaTurnoSelect.addEventListener('change', actualizarOpcionesTipoCancha);
-    tipoCanchaSelect.addEventListener('change', actualizarOpcionesTipoCancha); //Añadido para que se actualice si cambia el tipo también
+    tipoCanchaSelect.addEventListener('change', actualizarOpcionesTipoCancha); 
 
     btnCalcularPrecio.addEventListener('click', function () {
         const nombre = nombreEquipoInput.value.trim();
@@ -302,7 +271,6 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // Validar hora para el día de hoy
         if (fechaElegida.toDateString() === hoy.toDateString()) {
             const horaActual = new Date().getHours();
             if (parseInt(hora) <= horaActual) {
@@ -315,9 +283,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const precioUnitario = precios[tipo];
         let fechasReserva = [dia];
-        let esTurnoFijoReal = esFijo; // Para saber si estamos generando múltiples reservas
-
-        // Si es un turno fijo Y NO estamos editando una instancia de un turno fijo existente
+        let esTurnoFijoReal = esFijo; 
         if (esFijo && (!reservaPendiente || !reservaPendiente.esFijo || reservaPendiente.dia !== dia)) {
             fechasReserva = obtenerFechasTurnoFijoDesde(dia);
             if (fechasReserva.length === 0) {
@@ -325,16 +291,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
             for (const fecha of fechasReserva) {
-                // Si estamos editando y la fecha es la original, no la chequeamos contra sí misma
                 let idExcluir = reservaPendiente ? reservaPendiente.id : null;
                 if (!hayDisponibilidad(tipo, fecha, hora)) {
                     alert(`No hay disponibilidad para Fútbol ${tipo} el día ${new Date(fecha + 'T00:00:00').toLocaleDateString()} a las ${hora}:00 hs.`);
                     return;
                 }
             }
-        } else { // Reserva única o edición de una reserva (fija o no)
-            esTurnoFijoReal = false; // No se generan múltiples reservas si es edición o no es fijo
-            // Si es una edición, hay que permitir que la reserva actual "ocupe" su propio turno
+        } else { 
+            esTurnoFijoReal = false;
             if (!hayDisponibilidad(tipo, dia, hora)) {
                 alert(`No hay disponibilidad para Fútbol ${tipo} el día ${new Date(dia + 'T00:00:00').toLocaleDateString()} a las ${hora}:00 hs.`);
                 return;
@@ -364,23 +328,20 @@ document.addEventListener('DOMContentLoaded', function () {
         confirmacionPagoDiv.style.display = "block";
         confirmacionPagoDiv.scrollIntoView({ behavior: 'smooth' });
 
-        // Guardar datos para la confirmación final
-        // Si es un turno fijo que genera múltiples fechas, esFijoOriginal se marca en la primera
         reservaPendiente = {
-            id: reservaPendiente ? reservaPendiente.id : null, // Mantener ID si es edición
+            id: reservaPendiente ? reservaPendiente.id : null, 
             equipo: nombre,
             tipo: tipo,
-            fechas: fechasReserva, // Puede ser una o varias
+            fechas: fechasReserva,
             hora: hora,
-            esFijo: esFijo, // Intención del usuario
-            esFijoOriginal: esFijo && fechasReserva.length > 1 && fechasReserva[0] === dia, // Si esta es la que origina el turno fijo
-            editando: !!(reservaPendiente && reservaPendiente.id) // Para saber si estamos en modo edición
+            esFijo: esFijo,
+            esFijoOriginal: esFijo && fechasReserva.length > 1 && fechasReserva[0] === dia, 
+            editando: !!(reservaPendiente && reservaPendiente.id) 
         };
     });
 
     btnCancelarPreReserva.addEventListener('click', function () {
         confirmacionPagoDiv.style.display = "none";
-        // No reseteamos el form, el usuario quiere modificar
         nombreEquipoInput.focus();
     });
 
@@ -390,29 +351,17 @@ document.addEventListener('DOMContentLoaded', function () {
         if (reservaPendiente.editando) { // Modo edición
             const index = reservas.findIndex(r => r.id === reservaPendiente.id);
             if (index !== -1) {
-                // Si se está editando una reserva que ERA parte de un turno fijo, y se desmarca "esFijo"
-                // O si se cambia la fecha/hora/tipo de una que era "esFijoOriginal"
-                // Esto implicaría lógica compleja para desvincularla o actualizar las demás.
-                // Por simplicidad: si se edita una reserva y se cambian datos clave de un turno fijo,
-                // se trata como una reserva individual nueva y la original (y sus asociadas si era esFijoOriginal) se deben cancelar aparte.
-                // O, más simple aún: la edición solo cambia datos de ESA instancia.
-
                 reservas[index].equipo = reservaPendiente.equipo;
-                reservas[index].dia = reservaPendiente.fechas[0]; // Edición es siempre sobre una fecha
+                reservas[index].dia = reservaPendiente.fechas[0];
                 reservas[index].tipo = reservaPendiente.tipo;
                 reservas[index].hora = reservaPendiente.hora;
-                // Si se está editando la "original" de un fijo y se desmarca "esFijo", las otras instancias deberían eliminarse.
-                // Esta lógica puede ser muy compleja. Por ahora, la edición es "simple" y no afecta a otros turnos fijos asociados.
-                // Si se desmarca "esFijo", esFijoOriginal se vuelve false.
                 reservas[index].esFijo = reservaPendiente.esFijo;
-                // esFijoOriginal no debería cambiar en edición simple a menos que se maneje la cancelación de las demás.
-                // Si se desmarcó "esFijo" en la edición, ya no es "original" de nada.
                 if (!reservas[index].esFijo) {
                     reservas[index].esFijoOriginal = false;
                 }
                 alert("Reserva actualizada con éxito.");
             }
-        } else { // Modo crear
+        } else { 
             reservaPendiente.fechas.forEach((fecha, index) => {
                 reservas.push({
                     id: idReserva++,
@@ -420,8 +369,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     tipo: reservaPendiente.tipo,
                     dia: fecha,
                     hora: reservaPendiente.hora,
-                    esFijo: reservaPendiente.esFijo, // La intención del usuario
-                    // Marcar solo la primera reserva del lote como "original" si es un turno fijo
+                    esFijo: reservaPendiente.esFijo, 
                     esFijoOriginal: reservaPendiente.esFijo && index === 0
                 });
             });
@@ -432,20 +380,18 @@ document.addEventListener('DOMContentLoaded', function () {
         guardarReservasEnLocalStorage();
         actualizarOpcionesTipoCancha();
 
-        // Resetear estado
         reservaPendiente = null;
         formReserva.reset();
         esFijoCheckbox.disabled = false;
-        setMinDate(); // Restablecer fecha mínima
+        setMinDate(); 
         btnCalcularPrecio.textContent = "Calcular Precio";
         confirmacionPagoDiv.style.display = "none";
-        mostrarSeccion('reservas'); // Para asegurar que se vean los cambios en la lista
+        mostrarSeccion('reservas');
     });
 
-    // --- INICIALIZACIÓN ---
     cargarHorasTurno();
     setMinDate();
-    cargarReservasDesdeLocalStorage(); // Carga y muestra inicial
-    actualizarOpcionesTipoCancha(); // Para estado inicial del select de canchas
-    mostrarSeccion('inicio'); // Mostrar sección de inicio por defecto
+    cargarReservasDesdeLocalStorage();
+    actualizarOpcionesTipoCancha();
+    mostrarSeccion('inicio'); 
 });

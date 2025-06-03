@@ -1,4 +1,3 @@
-/* Reset y base */
 * {
     margin: 0;
     padding: 0;
@@ -12,14 +11,12 @@ html {
 body {
     font-family: 'Arial', sans-serif;
     background-color: #eef1f5;
-    /* Un gris muy claro para el fondo general */
     color: #333;
     line-height: 1.6;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
     font-size: 16px;
-    /* Base font size */
 }
 
 .container {
@@ -29,10 +26,8 @@ body {
     padding: 0 15px;
 }
 
-/* Header */
 header {
     background-color: #004d40;
-    /* Verde oscuro azulado */
     color: #fff;
     padding: 1rem 0;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -58,7 +53,6 @@ nav button {
     background: none;
     border: 2px solid transparent;
     color: #b2dfdb;
-    /* Verde pálido */
     font-size: 1rem;
     font-weight: bold;
     padding: 0.6em 1.2em;
@@ -76,55 +70,59 @@ nav button:hover {
 nav button.active {
     color: #ffffff;
     border-bottom-color: #ffab40;
-    /* Naranja ámbar como acento */
     background-color: rgba(255, 255, 255, 0.15);
 }
 
-/* Main Content */
 main {
     flex-grow: 1;
 }
 
-/* Secciones con fondo */
 .seccion-fondo {
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    /* Puede causar problemas en móviles, considerar quitar o alternative */
     min-height: calc(100vh - 100px);
-    /* Ajustar según altura de header y footer */
     display: flex;
-    /* Por defecto ocultas, se cambia a flex con JS */
     justify-content: center;
     align-items: center;
     text-align: center;
     padding: 40px 20px;
     position: relative;
+    overflow: hidden;
 }
 
-#inicio {
-    background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('futbol_fondo.jpg');
+.video-bg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translateX(-50%) translateY(-50%);
+    z-index: -10;
+    object-fit: cover;
 }
 
-#reservas {
-    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('reservas_fondo.jpg');
+.seccion-fondo::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: -5;
 }
 
-/* Contenedores de contenido dentro de secciones */
+
 .contenido-seccion {
-    background-color: rgba(10, 25, 41, 0.85);
-    /* Azul oscuro semi-transparente */
+    background-color: rgba(10, 25, 41, 0.75);
     padding: 30px 40px;
     border-radius: 12px;
     max-width: 700px;
     width: 100%;
     color: #e0e0e0;
-    /* Texto gris claro para contraste */
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(5px);
-    /* Efecto vidrio esmerilado */
-    -webkit-backdrop-filter: blur(5px);
-    /* Para Safari */
+    position: relative;
+    z-index: 1;
 }
 
 .contenido-seccion h2 {
@@ -143,7 +141,6 @@ main {
     font-size: 1.5rem;
 }
 
-/* Contenido específico de Inicio */
 .contenido-inicio p {
     font-size: 1.1rem;
     margin-bottom: 1.5rem;
@@ -172,7 +169,6 @@ main {
 
 #contacto a {
     color: #80cbc4;
-    /* Verde agua */
     text-decoration: none;
     transition: color 0.3s ease;
 }
@@ -195,7 +191,6 @@ main {
     border: 0;
 }
 
-/* Formulario */
 #formReserva {
     display: grid;
     gap: 15px;
@@ -219,10 +214,8 @@ main {
 #formReserva select {
     padding: 12px;
     border: 1px solid #00796b;
-    /* Borde verde oscuro */
     border-radius: 6px;
     background-color: #e0f2f1;
-    /* Fondo verde muy pálido */
     color: #004d40;
     font-size: 1rem;
     width: 100%;
@@ -245,7 +238,6 @@ main {
 #formReserva input[type="checkbox"] {
     width: auto;
     accent-color: #ffab40;
-    /* Color del check */
     transform: scale(1.2);
 }
 
@@ -255,7 +247,6 @@ main {
     color: #e0e0e0;
 }
 
-/* Botones generales */
 .btn {
     color: white;
     padding: 12px 20px;
@@ -279,7 +270,6 @@ main {
 
 .btn-primary {
     background-color: #00796b;
-    /* Verde principal */
 }
 
 .btn-primary:hover {
@@ -288,7 +278,6 @@ main {
 
 .btn-success {
     background-color: #388e3c;
-    /* Verde éxito */
 }
 
 .btn-success:hover {
@@ -297,7 +286,6 @@ main {
 
 .btn-danger {
     background-color: #d32f2f;
-    /* Rojo peligro */
 }
 
 .btn-danger:hover {
@@ -306,7 +294,6 @@ main {
 
 .btn-warning {
     background-color: #f57c00;
-    /* Naranja advertencia */
     color: #fff;
 }
 
@@ -316,18 +303,14 @@ main {
 
 .btn-info {
     background-color: #0288d1;
-    /* Azul info */
 }
 
 .btn-info:hover {
     background-color: #0277bd;
 }
 
-
-/* Sección de confirmación de pago */
 #confirmacionPago {
     background-color: rgba(0, 77, 64, 0.3);
-    /* Fondo verde oscuro transparente */
     padding: 20px;
     border-radius: 8px;
     text-align: center;
@@ -366,15 +349,12 @@ main {
 #confirmacionPago button {
     margin-top: 15px;
     margin-right: 10px;
-    /* Espacio entre botones de confirmación */
 }
 
 #confirmacionPago button:last-child {
     margin-right: 0;
 }
 
-
-/* Lista de reservas */
 .reservas-listado {
     margin-top: 30px;
     text-align: left;
@@ -387,9 +367,7 @@ main {
 
 #listaReservas li {
     background-color: rgba(224, 242, 241, 0.9);
-    /* Verde muy pálido casi opaco */
     color: #004d40;
-    /* Texto verde oscuro */
     margin-bottom: 12px;
     padding: 15px;
     border-radius: 8px;
@@ -417,16 +395,12 @@ main {
     font-size: 0.9rem;
 }
 
-/* Footer */
 footer {
     background-color: #00251a;
-    /* Verde más oscuro aún */
     color: #80cbc4;
-    /* Texto verde pálido */
     text-align: center;
     padding: 1.5rem 0;
     margin-top: auto;
-    /* Empuja el footer hacia abajo */
 }
 
 footer p {
@@ -434,7 +408,6 @@ footer p {
     font-size: 0.9rem;
 }
 
-/* Responsive */
 @media screen and (max-width: 768px) {
     header .container {
         flex-direction: column;
@@ -472,7 +445,6 @@ footer p {
 
     #formReserva {
         grid-template-columns: 1fr;
-        /* Asegura una sola columna en móvil */
     }
 
     #listaReservas li {
@@ -522,17 +494,18 @@ footer p {
     }
 }
 
-/* Para landscape en móviles con poca altura */
 @media screen and (orientation: landscape) and (max-height: 500px) {
     .seccion-fondo {
         min-height: 200px;
-        /* Evita que sea demasiado alto y permita scroll */
         padding: 20px 10px;
+    }
+
+    .video-bg {
+        object-fit: cover;
     }
 
     .contenido-seccion {
         max-height: calc(90vh - 40px);
-        /* 90% de la altura de la ventana menos el padding */
         overflow-y: auto;
         padding: 15px;
     }
@@ -548,7 +521,6 @@ footer p {
     }
 }
 
-/* Custom scrollbar (sutil) */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -561,11 +533,9 @@ footer p {
 
 ::-webkit-scrollbar-thumb {
     background: #004d40;
-    /* Verde oscuro */
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
     background: #ffab40;
-    /* Naranja al hacer hover */
 }

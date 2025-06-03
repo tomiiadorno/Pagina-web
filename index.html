@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Gestor de Canchas - Tomas Adorno</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Canchas - Tomas Adorno</title>
     <link rel="stylesheet" href="estilos.css">
 </head>
 
@@ -20,12 +21,15 @@
     </header>
 
     <main>
-        <!-- 🏠 INICIO -->
         <section id="inicio" class="seccion-fondo">
+            <video autoplay loop muted playsinline poster="fondo_estadio_poster.jpg" class="video-bg">
+                <source src="fondo_estadio_loop.mp4" type="video/mp4">
+            </video>
             <div class="contenido-seccion contenido-inicio">
                 <h2>¡Bienvenido a Tu Gestor Favorito!</h2>
-                <p>Organiza tus partidos de forma rápida y sencilla con nuestro moderno gestor de reservas. Encuentra la cancha perfecta, invita a tu equipo y ¡a jugar!</p>
-                
+                <p>Organiza tus partidos de forma rápida y sencilla con nuestro moderno gestor de reservas. Encuentra la
+                    cancha perfecta, invita a tu equipo y ¡a jugar!</p>
+
                 <section id="infoAdicional">
                     <h3>¿Por qué elegirnos?</h3>
                     <ul>
@@ -44,14 +48,19 @@
                         <p>Dirección: Juncal 3131, CABA</p>
                     </address>
                     <div class="mapa-container">
-                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1161.3403511398872!2d-58.40801833692777!3d-34.58477310410525!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bcb5001d2d4867%3A0x2ed11d15855bc4c7!2sCanchas%20de%20F%C3%BAtbol!5e0!3m2!1ses!2sar!4v1748785963037!5m2!1ses!2sar" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        <iframe
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1161.3403511398872!2d-58.40801833692777!3d-34.58477310410525!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bcb5001d2d4867%3A0x2ed11d15855bc4c7!2sCanchas%20de%20F%C3%BAtbol!5e0!3m2!1ses!2sar!4v1748785963037!5m2!1ses!2sar"
+                            allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                     </div>
                 </section>
             </div>
         </section>
 
-        <!-- ⚽ RESERVAS -->
         <section id="reservas" class="seccion-fondo" style="display: none;">
+            <video autoplay loop muted playsinline poster="fondo_estadio_poster.jpg" class="video-bg">
+                <source src="fondo_estadio_loop.mp4" type="video/mp4">
+                Tu navegador no soporta videos HTML5.
+            </video>
             <div class="contenido-seccion contenido-reservas">
                 <h2>Reservar una Cancha</h2>
 
@@ -67,13 +76,11 @@
                     <div class="form-group">
                         <label for="tipoCancha">Tipo de cancha:</label>
                         <select id="tipoCancha" required>
-                            <!-- Opciones se generan por JS -->
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="horaTurno">Hora del turno:</label>
                         <select id="horaTurno" required>
-                            <!-- Turnos 15 a 23 se generan por JS -->
                         </select>
                     </div>
                     <div class="form-group checkbox-group">
@@ -94,7 +101,6 @@
                 <div class="reservas-listado">
                     <h3>Mis Reservas Activas</h3>
                     <ul id="listaReservas">
-                        <!-- Las reservas se listan aquí -->
                     </ul>
                 </div>
             </div>
@@ -103,10 +109,11 @@
 
     <footer>
         <div class="container">
-            <p>© 2024 Gestor de Canchas "Tu Point Deportivo" - Tomas Adorno. Todos los derechos reservados.</p>
+            <p>© 2024 Gestor de Canchas "Tu Gestor Favorito" - Tomas Adorno. Todos los derechos reservados.</p>
         </div>
     </footer>
-
-    <script src="script.js"></script>
 </body>
+
+<script src="script.js"></script>
+
 </html>
