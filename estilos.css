@@ -91,6 +91,10 @@ nav button:hover::after {
     width: 90%;
     margin: auto;
     color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: auto;
 }
 
 /* Formulario */
@@ -205,6 +209,21 @@ nav button:hover::after {
         grid-template-columns: 1fr;
     }
 }
+
+/* Responsive para vertical */
+@media screen and (max-width: 600px) and (orientation: portrait) {
+    .contenido-inicio, .contenido-reservas {
+        width: 100%;
+        max-width: 100%;
+        padding: 40px 20px;
+        font-size: 1.1rem;
+    }
+
+    #inicio, #reservas {
+        padding: 10px;
+    }
+}
+
 
 @media screen and (orientation: landscape) and (max-height: 500px) {
     .contenido-inicio, .contenido-reservas {
