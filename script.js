@@ -1,6 +1,14 @@
 function mostrarSeccion(seccion) {
-    document.getElementById('inicio').style.display = seccion === 'inicio' ? 'block' : 'none';
-    document.getElementById('reservas').style.display = seccion === 'reservas' ? 'block' : 'none';
+    const inicio = document.getElementById('inicio');
+    const reservas = document.getElementById('reservas');
+
+    if (seccion === 'inicio') {
+        inicio.classList.remove('d-none');
+        reservas.classList.add('d-none');
+    } else if (seccion === 'reservas') {
+        reservas.classList.remove('d-none');
+        inicio.classList.add('d-none');
+    }
 }
 
 // Turnos: 15 a 23
