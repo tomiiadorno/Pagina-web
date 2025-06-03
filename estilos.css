@@ -2,6 +2,9 @@ body {
     font-family: 'Roboto', sans-serif;
     background-color: #121212;
     color: white;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
 }
 
 header {
@@ -9,7 +12,7 @@ header {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
-/* Botones de navegación */
+/* Botones de navegación con subrayado animado */
 .nav-btn {
     background: none;
     border: none;
@@ -51,6 +54,10 @@ header {
     background-position: center;
     background-attachment: fixed;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 #inicio {
@@ -78,11 +85,12 @@ header {
     max-width: 700px;
     width: 90%;
     text-shadow: 1px 1px 2px black;
-    overflow-y: auto;
-    max-height: 90vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 20px;
+    border-radius: 10px;
 }
 
-/* Lista de reservas con fondo hueso */
+/* Lista de reservas modernas con fondo hueso */
 #listaReservas .reserva-card {
     background-color: rgba(245, 245, 220, 0.95);
     color: #333;
@@ -136,13 +144,8 @@ header {
     .contenido,
     .contenido-reservas {
         width: 95%;
-        padding: 20px;
-        max-height: none;
-    }
-
-    #listaReservas .reserva-card {
-        font-size: 0.95rem;
-        padding: 10px 15px;
+        padding: 15px;
+        background-color: rgba(0, 0, 0, 0.8);
     }
 
     .nav-btn {
@@ -152,7 +155,7 @@ header {
 
     h2,
     h3 {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
     }
 
     .lead,
