@@ -214,14 +214,14 @@ nav button:hover::after {
     .contenido-inicio,
     .contenido-reservas {
         width: 100%;
-        max-width: 100%;
         height: 100vh;
-        padding: 20px;
-        font-size: 1.3rem;
+        padding: 30px;
+        font-size: 1.5rem;
         display: flex;
         flex-direction: column;
         justify-content: center;
         overflow-y: auto;
+        background-color: rgba(0, 0, 0, 0.7);
     }
 
     #inicio, #reservas {
@@ -229,22 +229,18 @@ nav button:hover::after {
     }
 
     #formReserva input,
-    #formReserva select {
-        font-size: 1.2rem;
+    #formReserva select,
+    #formReserva label {
+        font-size: 1.3rem;
     }
 
-    #confirmacionPago p {
-        font-size: 1.2rem;
-    }
-
-    #listaReservas li {
-        font-size: 1.2rem;
-    }
-
+    #confirmacionPago p,
+    #listaReservas li,
     nav button {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
     }
 }
+
 
 
 @media screen and (orientation: landscape) and (max-height: 500px) {
