@@ -468,6 +468,13 @@ footer p {
     #confirmacionPago button:last-child {
         margin-bottom: 0;
     }
+
+    #formReserva input[type="text"],
+    #formReserva input[type="date"],
+    #formReserva select {
+        margin-left: 0;
+        margin-right: 0;
+    }
 }
 
 @media screen and (max-width: 480px) {

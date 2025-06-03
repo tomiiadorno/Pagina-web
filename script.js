@@ -27,7 +27,6 @@ document.addEventListener('DOMContentLoaded', function () {
     let idReserva = 1;
     let reservaPendiente = null;
 
-    // --- NAVEGACIÓN ---
     function mostrarSeccion(seccionId) {
         seccionInicio.style.display = 'none';
         seccionReservas.style.display = 'none';
@@ -46,8 +45,6 @@ document.addEventListener('DOMContentLoaded', function () {
     btnInicio.addEventListener('click', () => mostrarSeccion('inicio'));
     btnReservas.addEventListener('click', () => mostrarSeccion('reservas'));
 
-    // --- LÓGICA DE RESERVAS ---
-
     function cargarHorasTurno() {
         for (let hora = 15; hora <= 23; hora++) {
             const opcion = document.createElement('option');
@@ -65,8 +62,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const data = localStorage.getItem('reservas');
         if (data) {
             const hoy = new Date();
-            hoy.setHours(0, 0, 0, 0); 
-            const ahora = new Date(); 
+            hoy.setHours(0, 0, 0, 0);
+            const ahora = new Date();
             const cargadas = JSON.parse(data);
             reservas = cargadas.filter(r => {
                 const fechaReserva = new Date(r.dia + 'T' + r.hora + ':00:00');
@@ -146,8 +143,8 @@ document.addEventListener('DOMContentLoaded', function () {
         diaReservaInput.value = reserva.dia;
         tipoCanchaSelect.value = reserva.tipo;
         horaTurnoSelect.value = reserva.hora;
-        esFijoCheckbox.checked = reserva.esFijoOriginal || reserva.esFijo; 
-        esFijoCheckbox.disabled = reserva.esFijo && !reserva.esFijoOriginal; 
+        esFijoCheckbox.checked = reserva.esFijoOriginal || reserva.esFijo;
+        esFijoCheckbox.disabled = reserva.esFijo && !reserva.esFijoOriginal;
 
         reservaPendiente = { ...reserva };
 
@@ -228,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const hoy = new Date();
         hoy.setHours(0, 0, 0, 0);
 
-        for (let i = 0; i < 4; i++) { 
+        for (let i = 0; i < 4; i++) {
             const nuevaFecha = new Date(fechaInicial);
             nuevaFecha.setDate(fechaInicial.getDate() + (i * 7));
             if (nuevaFecha >= hoy) {
@@ -241,14 +238,14 @@ document.addEventListener('DOMContentLoaded', function () {
     function setMinDate() {
         const today = new Date();
         const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0'); 
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
         const dd = String(today.getDate()).padStart(2, '0');
         diaReservaInput.min = `${yyyy}-${mm}-${dd}`;
     }
 
     diaReservaInput.addEventListener('change', actualizarOpcionesTipoCancha);
     horaTurnoSelect.addEventListener('change', actualizarOpcionesTipoCancha);
-    tipoCanchaSelect.addEventListener('change', actualizarOpcionesTipoCancha); 
+    tipoCanchaSelect.addEventListener('change', actualizarOpcionesTipoCancha);
 
     btnCalcularPrecio.addEventListener('click', function () {
         const nombre = nombreEquipoInput.value.trim();
@@ -283,7 +280,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const precioUnitario = precios[tipo];
         let fechasReserva = [dia];
-        let esTurnoFijoReal = esFijo; 
+        let esTurnoFijoReal = esFijo;
         if (esFijo && (!reservaPendiente || !reservaPendiente.esFijo || reservaPendiente.dia !== dia)) {
             fechasReserva = obtenerFechasTurnoFijoDesde(dia);
             if (fechasReserva.length === 0) {
@@ -297,7 +294,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
             }
-        } else { 
+        } else {
             esTurnoFijoReal = false;
             if (!hayDisponibilidad(tipo, dia, hora)) {
                 alert(`No hay disponibilidad para Fútbol ${tipo} el día ${new Date(dia + 'T00:00:00').toLocaleDateString()} a las ${hora}:00 hs.`);
@@ -329,14 +326,14 @@ document.addEventListener('DOMContentLoaded', function () {
         confirmacionPagoDiv.scrollIntoView({ behavior: 'smooth' });
 
         reservaPendiente = {
-            id: reservaPendiente ? reservaPendiente.id : null, 
+            id: reservaPendiente ? reservaPendiente.id : null,
             equipo: nombre,
             tipo: tipo,
             fechas: fechasReserva,
             hora: hora,
             esFijo: esFijo,
-            esFijoOriginal: esFijo && fechasReserva.length > 1 && fechasReserva[0] === dia, 
-            editando: !!(reservaPendiente && reservaPendiente.id) 
+            esFijoOriginal: esFijo && fechasReserva.length > 1 && fechasReserva[0] === dia,
+            editando: !!(reservaPendiente && reservaPendiente.id)
         };
     });
 
@@ -348,7 +345,7 @@ document.addEventListener('DOMContentLoaded', function () {
     btnConfirmarReserva.addEventListener('click', function () {
         if (!reservaPendiente) return;
 
-        if (reservaPendiente.editando) { // Modo edición
+        if (reservaPendiente.editando) {
             const index = reservas.findIndex(r => r.id === reservaPendiente.id);
             if (index !== -1) {
                 reservas[index].equipo = reservaPendiente.equipo;
@@ -361,7 +358,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 alert("Reserva actualizada con éxito.");
             }
-        } else { 
+        } else {
             reservaPendiente.fechas.forEach((fecha, index) => {
                 reservas.push({
                     id: idReserva++,
@@ -369,7 +366,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     tipo: reservaPendiente.tipo,
                     dia: fecha,
                     hora: reservaPendiente.hora,
-                    esFijo: reservaPendiente.esFijo, 
+                    esFijo: reservaPendiente.esFijo,
                     esFijoOriginal: reservaPendiente.esFijo && index === 0
                 });
             });
@@ -378,12 +375,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         mostrarReservas();
         guardarReservasEnLocalStorage();
-        actualizarOpcionesTipoCancha();
 
         reservaPendiente = null;
         formReserva.reset();
         esFijoCheckbox.disabled = false;
-        setMinDate(); 
+        setMinDate();
+        actualizarOpcionesTipoCancha();
+
         btnCalcularPrecio.textContent = "Calcular Precio";
         confirmacionPagoDiv.style.display = "none";
         mostrarSeccion('reservas');
@@ -393,5 +391,5 @@ document.addEventListener('DOMContentLoaded', function () {
     setMinDate();
     cargarReservasDesdeLocalStorage();
     actualizarOpcionesTipoCancha();
-    mostrarSeccion('inicio'); 
+    mostrarSeccion('inicio');
 });
