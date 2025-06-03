@@ -87,7 +87,6 @@ nav button:hover::after {
     background-color: rgba(0, 0, 0, 0.6);
     padding: 30px;
     border-radius: 10px;
-    max-width: 600px;
     width: 90%;
     margin: auto;
     color: white;
