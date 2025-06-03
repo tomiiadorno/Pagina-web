@@ -214,7 +214,7 @@ nav button:hover::after {
     .contenido-inicio,
     .contenido-reservas {
         width: 100%;
-        height: 100vh;
+        height: 100%;
         padding: 30px;
         font-size: 1.5rem;
         display: flex;
