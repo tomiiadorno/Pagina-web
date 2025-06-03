@@ -1,14 +1,6 @@
 function mostrarSeccion(seccion) {
-    const inicio = document.getElementById('inicio');
-    const reservas = document.getElementById('reservas');
-
-    if (seccion === 'inicio') {
-        inicio.classList.remove('d-none');
-        reservas.classList.add('d-none');
-    } else if (seccion === 'reservas') {
-        reservas.classList.remove('d-none');
-        inicio.classList.add('d-none');
-    }
+    document.getElementById('inicio').style.display = seccion === 'inicio' ? 'block' : 'none';
+    document.getElementById('reservas').style.display = seccion === 'reservas' ? 'block' : 'none';
 }
 
 // Turnos: 15 a 23
@@ -81,25 +73,13 @@ function mostrarReservas() {
     const lista = document.getElementById('listaReservas');
     lista.innerHTML = "";
 
-    reservas.forEach(reserva => {
-        const card = document.createElement('div');
-        card.className = 'reserva-card d-flex justify-content-between align-items-center';
-
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'reserva-info';
-        const titulo = document.createElement('h5');
-        titulo.textContent = `Equipo: ${reserva.equipo}`;
-        const detalle = document.createElement('p');
-        detalle.textContent = `Fútbol ${reserva.tipo} - ${reserva.dia} - ${reserva.hora}:00`;
-        infoDiv.appendChild(titulo);
-        infoDiv.appendChild(detalle);
-
-        const btnGroup = document.createElement('div');
-        btnGroup.className = 'd-flex align-items-center gap-2';
+    for (let i = 0; i < reservas.length; i++) {
+        const reserva = reservas[i];
+        const li = document.createElement('li');
+        li.innerText = `Equipo: ${reserva.equipo} | Cancha: Fútbol ${reserva.tipo} | Día: ${reserva.dia} | Hora: ${reserva.hora}:00`;
 
         const btnEditar = document.createElement('button');
-        btnEditar.className = 'btn-editar';
-        btnEditar.textContent = 'Editar';
+        btnEditar.innerText = "Editar";
         btnEditar.addEventListener('click', function () {
             document.getElementById('nombreEquipo').value = reserva.equipo;
             document.getElementById('diaReserva').value = reserva.dia;
@@ -112,10 +92,9 @@ function mostrarReservas() {
             actualizarOpcionesTipoCancha();
         });
 
-        const btnCancelar = document.createElement('button');
-        btnCancelar.className = 'btn-cancelar';
-        btnCancelar.textContent = 'Cancelar';
-        btnCancelar.addEventListener('click', function () {
+        const btnEliminar = document.createElement('button');
+        btnEliminar.innerText = "Cancelar";
+        btnEliminar.addEventListener('click', function () {
             const index = reservas.findIndex(r => r.id === reserva.id);
             if (index !== -1) {
                 reservas.splice(index, 1);
@@ -125,13 +104,10 @@ function mostrarReservas() {
             }
         });
 
-        btnGroup.appendChild(btnEditar);
-        btnGroup.appendChild(btnCancelar);
-
-        card.appendChild(infoDiv);
-        card.appendChild(btnGroup);
-        lista.appendChild(card);
-    });
+        li.appendChild(btnEditar);
+        li.appendChild(btnEliminar);
+        lista.appendChild(li);
+    }
 }
 
 function canchasDisponibles(tipo, dia, hora) {
@@ -239,6 +215,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
+        // 🔧 Ajuste: si estamos editando, mostrar solo el precio de 1 turno.
         const total = precio * (reservaPendiente ? 1 : fechasReserva.length);
 
         let ul = "<ul>";
@@ -266,9 +243,11 @@ document.addEventListener('DOMContentLoaded', function () {
         };
     });
 
+
     btnConfirmar.addEventListener('click', function () {
         if (reservaPendiente) {
             if (reservas.find(r => r.id === reservaPendiente.id)) {
+                // Modo edición
                 const r = reservas.find(r => r.id === reservaPendiente.id);
                 r.equipo = reservaPendiente.equipo;
                 r.dia = reservaPendiente.fechas[0];
@@ -276,6 +255,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 r.hora = reservaPendiente.hora;
                 r.esFijo = reservaPendiente.esFijo;
             } else {
+                // Modo crear
                 for (let i = 0; i < reservaPendiente.fechas.length; i++) {
                     reservas.push({
                         id: idReserva++,

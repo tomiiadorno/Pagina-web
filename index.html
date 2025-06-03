@@ -4,93 +4,75 @@
 <head>
     <meta charset="UTF-8">
     <title>Gestor de Canchas - Tomas Adorno</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="estilos.css">
 </head>
 
 <body>
-    <!-- Header -->
-    <header class="navbar navbar-dark bg-gradient shadow">
-        <div class="container">
-            <h1 class="navbar-brand mb-0">Gestor de Canchas</h1>
-            <div>
-                <button class="nav-btn" onclick="mostrarSeccion('inicio')">🏠 Inicio</button>
-                <button class="nav-btn" onclick="mostrarSeccion('reservas')">⚽ Reservas</button>
-            </div>
-        </div>
+
+    <header>
+        <h1>Gestor de Reservas de Canchas</h1>
+        <nav>
+            <button onclick="mostrarSeccion('inicio')">Inicio</button>
+            <button onclick="mostrarSeccion('reservas')">Reservas</button>
+        </nav>
     </header>
 
     <main>
-        <!-- Inicio -->
-        <section id="inicio" class="seccion-fondo d-flex align-items-center justify-content-center text-center">
-            <div class="overlay"></div>
-            <div class="contenido">
-                <h2 class="display-4 mb-3">¡BienvenidoA!</h2>
-                <p class="lead mb-4">Organizá tus partidos fácilmente con nuestro gestor de reservas.</p>
-                <div class="contacto bg-dark bg-opacity-75 p-3 rounded">
-                    <h4>Contacto y Ubicación</h4>
+        <!-- 🏠 INICIO -->
+        <section id="inicio" class="fondo-inicio" style="display: block;">
+            <div class="contenido-inicio">
+                <h2>¡Bienvenido!</h2>
+                <p>Organizá tus partidos fácilmente con nuestro gestor de reservas.</p>
+                <section id="contacto">
+                    <h3>Contacto y Ubicación</h3>
                     <p>Teléfono: 299 6048667</p>
-                    <p>Email: <a href="mailto:canchas.contacto@gmail.com"
-                            class="link-light">canchas.contacto@gmail.com</a></p>
+                    <p>Email: <a href="mailto:canchas.contacto@gmail.com">canchas.contacto@gmail.com</a></p>
                     <p>Dirección: Juncal 3131, CABA</p>
-                    <div class="ratio ratio-16x9 mt-2">
-                        <iframe
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1161.3403511398872!2d-58.40801833692777!3d-34.58477310410525!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bcb5001d2d4867%3A0x2ed11d15855bc4c7!2sCanchas%20de%20F%C3%BAtbol!5e0!3m2!1ses!2sar!4v1748785963037!5m2!1ses!2sar"
-                            style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-                    </div>
-                </div>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1161.3403511398872!2d-58.40801833692777!3d-34.58477310410525!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bcb5001d2d4867%3A0x2ed11d15855bc4c7!2sCanchas%20de%20F%C3%BAtbol!5e0!3m2!1ses!2sar!4v1748785963037!5m2!1ses!2sar" width="400" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </section>
             </div>
         </section>
 
-        <!-- Reservas -->
-        <section id="reservas"
-            class="seccion-fondo d-none d-flex align-items-center justify-content-center text-center">
-            <div class="overlay"></div>
-            <div class="contenido-reservas bg-dark bg-opacity-75 p-4 rounded">
-                <h2 class="mb-4">Reservar una cancha</h2>
-                <form id="formReserva" class="mb-4">
-                    <div class="row g-3">
-                        <div class="col-12">
-                            <input type="text" id="nombreEquipo" class="form-control form-control-lg"
-                                placeholder="Nombre del equipo" required>
-                        </div>
-                        <div class="col-md-6">
-                            <input type="date" id="diaReserva" class="form-control form-control-lg" required>
-                        </div>
-                        <div class="col-md-6">
-                            <select id="horaTurno" class="form-select form-select-lg" required></select>
-                        </div>
-                        <div class="col-12">
-                            <select id="tipoCancha" class="form-select form-select-lg" required>
-                                <option value="">Tipo de Cancha</option>
-                                <option value="5">Fútbol 5</option>
-                                <option value="8">Fútbol 8</option>
-                                <option value="11">Fútbol 11</option>
-                            </select>
-                        </div>
-                        <div class="col-12 text-start">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="esFijo">
-                                <label class="form-check-label" for="esFijo">Turno fijo semanal</label>
-                            </div>
-                        </div>
-                    </div>
-                    <button type="button" id="calcularPrecio" class="btn btn-success btn-lg mt-3">Calcular
-                        precio</button>
+        <!-- ⚽ RESERVAS -->
+        <section id="reservas" style="display: none;">
+            <div class="contenido-reservas">
+                <h2>Reservar una cancha</h2>
+
+                <form id="formReserva">
+                    <input type="text" id="nombreEquipo" placeholder="Nombre del equipo" required>
+                    <input type="date" id="diaReserva" required>
+
+                    <select id="tipoCancha" required>
+                        <option value="5">Fútbol 5</option>
+                        <option value="8">Fútbol 8</option>
+                        <option value="11">Fútbol 11</option>
+                    </select>
+
+                    <select id="horaTurno" required>
+                        <!-- Turnos 15 a 23 se generan por JS -->
+                    </select>
+
+                    <label>
+                        <input type="checkbox" id="esFijo">
+                        Turno fijo semanal
+                    </label>
+
+                    <button type="button" id="calcularPrecio">Calcular precio</button>
                 </form>
-                <div id="confirmacionPago" style="display: none;" class="mb-3">
-                    <p id="textoPrecio" class="lead"></p>
-                    <button id="confirmarReserva" class="btn btn-primary btn-lg">Confirmar y pagar</button>
+
+                <!-- Sección de confirmación de pago -->
+                <div id="confirmacionPago" style="display: none;">
+                    <p id="textoPrecio"></p>
+                    <button id="confirmarReserva">Confirmar y pagar</button>
                 </div>
-                <h3 class="mt-4">Reservas realizadas</h3>
-                <div id="listaReservas" class="mt-3"></div>
+
+                <h3>Reservas realizadas</h3>
+                <ul id="listaReservas"></ul>
             </div>
         </section>
     </main>
 
     <script src="script.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
