@@ -4,9 +4,9 @@
     box-sizing: border-box;
 }
 
-html {
-    scroll-behavior: smooth;
-}
+/* html {
+    scroll-behavior: smooth; // Eliminado por si no está en el programa
+} */
 
 body {
     font-family: 'Arial', sans-serif;
@@ -123,6 +123,8 @@ main {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     position: relative;
     z-index: 1;
+    /* backdrop-filter: blur(5px); Eliminado por si no está en el programa */
+    /* -webkit-backdrop-filter: blur(5px); Eliminado */
 }
 
 .contenido-seccion h2 {
@@ -237,7 +239,7 @@ main {
 
 #formReserva input[type="checkbox"] {
     width: auto;
-    accent-color: #ffab40;
+    /* accent-color: #ffab40; Eliminado por si no está en el programa */
     transform: scale(1.2);
 }
 

@@ -1,11 +1,9 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Elementos del DOM para navegación
     const btnInicio = document.getElementById('btnInicio');
     const btnReservas = document.getElementById('btnReservas');
     const seccionInicio = document.getElementById('inicio');
     const seccionReservas = document.getElementById('reservas');
 
-    // Elementos del DOM para el formulario y la lista
     const formReserva = document.getElementById('formReserva');
     const nombreEquipoInput = document.getElementById('nombreEquipo');
     const diaReservaInput = document.getElementById('diaReserva');
@@ -42,14 +40,14 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    btnInicio.addEventListener('click', () => mostrarSeccion('inicio'));
-    btnReservas.addEventListener('click', () => mostrarSeccion('reservas'));
+    btnInicio.addEventListener('click', function () { mostrarSeccion('inicio'); });
+    btnReservas.addEventListener('click', function () { mostrarSeccion('reservas'); });
 
     function cargarHorasTurno() {
         for (let hora = 15; hora <= 23; hora++) {
             const opcion = document.createElement('option');
             opcion.value = hora;
-            opcion.textContent = `${hora}:00 hs`;
+            opcion.textContent = hora + ':00 hs';
             horaTurnoSelect.appendChild(opcion);
         }
     }
@@ -65,13 +63,25 @@ document.addEventListener('DOMContentLoaded', function () {
             hoy.setHours(0, 0, 0, 0);
             const ahora = new Date();
             const cargadas = JSON.parse(data);
-            reservas = cargadas.filter(r => {
+
+            const reservasFiltradas = [];
+            for (let i = 0; i < cargadas.length; i++) {
+                const r = cargadas[i];
                 const fechaReserva = new Date(r.dia + 'T' + r.hora + ':00:00');
-                return fechaReserva >= ahora;
-            });
+                if (fechaReserva >= ahora) {
+                    reservasFiltradas.push(r);
+                }
+            }
+            reservas = reservasFiltradas;
 
             if (reservas.length > 0) {
-                idReserva = Math.max(...reservas.map(r => r.id)) + 1;
+                let maxId = 0;
+                for (let i = 0; i < reservas.length; i++) {
+                    if (reservas[i].id > maxId) {
+                        maxId = reservas[i].id;
+                    }
+                }
+                idReserva = maxId + 1;
             } else {
                 idReserva = 1;
             }
@@ -82,30 +92,31 @@ document.addEventListener('DOMContentLoaded', function () {
     function mostrarReservas() {
         listaReservasUl.innerHTML = "";
 
-        const reservasOrdenadas = [...reservas].sort((a, b) => {
+        const reservasCopia = reservas.slice(); // Clonar array con slice() (ES5)
+        const reservasOrdenadas = reservasCopia.sort(function (a, b) {
             const fechaA = new Date(a.dia + 'T' + a.hora + ':00:00');
             const fechaB = new Date(b.dia + 'T' + b.hora + ':00:00');
             return fechaA - fechaB;
         });
-
 
         if (reservasOrdenadas.length === 0) {
             listaReservasUl.innerHTML = "<p style='text-align:center; color: #b2dfdb;'>Aún no tienes reservas activas.</p>";
             return;
         }
 
-        reservasOrdenadas.forEach(reserva => {
+        reservasOrdenadas.forEach(function (reserva) {
             const li = document.createElement('li');
-
             const infoDiv = document.createElement('div');
             infoDiv.classList.add('reserva-info');
-            infoDiv.innerHTML = `
-                <strong>Equipo:</strong> ${reserva.equipo}<br>
-                <strong>Cancha:</strong> Fútbol ${reserva.tipo} <br>
-                <strong>Día:</strong> ${new Date(reserva.dia + 'T00:00:00').toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} <br>
-                <strong>Hora:</strong> ${reserva.hora}:00 hs
-                ${reserva.esFijoOriginal ? ' <span style="color: #00796b; font-weight:bold;">(Turno Fijo)</span>' : ''}
-            `;
+
+            let htmlInfo = '<strong>Equipo:</strong> ' + reserva.equipo + '<br>' +
+                '<strong>Cancha:</strong> Fútbol ' + reserva.tipo + ' <br>' +
+                '<strong>Día:</strong> ' + new Date(reserva.dia + 'T00:00:00').toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + ' <br>' +
+                '<strong>Hora:</strong> ' + reserva.hora + ':00 hs';
+            if (reserva.esFijoOriginal) {
+                htmlInfo += ' <span style="color: #00796b; font-weight:bold;">(Turno Fijo)</span>';
+            }
+            infoDiv.innerHTML = htmlInfo;
 
             const accionesDiv = document.createElement('div');
             accionesDiv.classList.add('reserva-acciones');
@@ -113,16 +124,15 @@ document.addEventListener('DOMContentLoaded', function () {
             const btnEditar = document.createElement('button');
             btnEditar.textContent = "Editar";
             btnEditar.classList.add('btn', 'btn-info');
-            btnEditar.addEventListener('click', () => cargarReservaParaEditar(reserva));
+            btnEditar.addEventListener('click', function () { cargarReservaParaEditar(reserva); });
 
             const btnEliminar = document.createElement('button');
             btnEliminar.textContent = "Cancelar";
             btnEliminar.classList.add('btn', 'btn-danger');
-            btnEliminar.addEventListener('click', () => eliminarReserva(reserva.id));
+            btnEliminar.addEventListener('click', function () { eliminarReserva(reserva.id); });
 
             accionesDiv.appendChild(btnEditar);
             accionesDiv.appendChild(btnEliminar);
-
             li.appendChild(infoDiv);
             li.appendChild(accionesDiv);
             listaReservasUl.appendChild(li);
@@ -130,9 +140,20 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function cargarReservaParaEditar(reserva) {
-        if (reserva.esFijo && !reserva.esFijoOriginal && reservas.some(r => r.id !== reserva.id && r.equipo === reserva.equipo && r.esFijoOriginal)) {
+        let esInstanciaDeFijo = false;
+        if (reserva.esFijo && !reserva.esFijoOriginal) {
+            for (let i = 0; i < reservas.length; i++) {
+                const rEval = reservas[i];
+                if (rEval.id !== reserva.id && rEval.equipo === reserva.equipo && rEval.esFijoOriginal) {
+                    esInstanciaDeFijo = true;
+                    break;
+                }
+            }
+        }
+
+        if (esInstanciaDeFijo) {
             alert("Las instancias de un turno fijo recurrente no se pueden editar individualmente de esta forma. Cancele y cree una nueva si es necesario, o edite la reserva original del turno fijo (si aplica).");
-            if (reserva.esFijo) {
+            if (reserva.esFijo) { // Doble chequeo, puede ser redundante pero seguro
                 alert("Los turnos fijos no se pueden editar en su totalidad. Puede cancelar instancias individuales o el turno completo (cancelando cada una).");
                 return;
             }
@@ -146,7 +167,8 @@ document.addEventListener('DOMContentLoaded', function () {
         esFijoCheckbox.checked = reserva.esFijoOriginal || reserva.esFijo;
         esFijoCheckbox.disabled = reserva.esFijo && !reserva.esFijoOriginal;
 
-        reservaPendiente = { ...reserva };
+        // Clonar objeto reserva (forma compatible con navegadores más antiguos)
+        reservaPendiente = JSON.parse(JSON.stringify(reserva));
 
         confirmacionPagoDiv.style.display = "none";
         btnCalcularPrecio.textContent = "Actualizar Precio/Disponibilidad";
@@ -154,13 +176,19 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function eliminarReserva(idReservaAEliminar) {
-        const reservaAEliminar = reservas.find(r => r.id === idReservaAEliminar);
+        let reservaAEliminar = null;
+        for (let i = 0; i < reservas.length; i++) {
+            if (reservas[i].id === idReservaAEliminar) {
+                reservaAEliminar = reservas[i];
+                break;
+            }
+        }
         if (!reservaAEliminar) return;
 
-        let mensajeConfirmacion = `¿Seguro que deseas cancelar la reserva para "${reservaAEliminar.equipo}" el día ${new Date(reservaAEliminar.dia + 'T00:00:00').toLocaleDateString()} a las ${reservaAEliminar.hora}:00?`;
+        let mensajeConfirmacion = '¿Seguro que deseas cancelar la reserva para "' + reservaAEliminar.equipo + '" el día ' + new Date(reservaAEliminar.dia + 'T00:00:00').toLocaleDateString() + ' a las ' + reservaAEliminar.hora + ':00?';
 
         if (reservaAEliminar.esFijoOriginal) {
-            mensajeConfirmacion = `Esta es una reserva original de un turno fijo. Cancelarla eliminará TODAS las instancias futuras de este turno fijo para "${reservaAEliminar.equipo}". ¿Deseas continuar?`;
+            mensajeConfirmacion = 'Esta es una reserva original de un turno fijo. Cancelarla eliminará TODAS las instancias futuras de este turno fijo para "' + reservaAEliminar.equipo + '". ¿Deseas continuar?';
         }
 
         if (confirm(mensajeConfirmacion)) {
@@ -168,12 +196,25 @@ document.addEventListener('DOMContentLoaded', function () {
                 const equipoOriginal = reservaAEliminar.equipo;
                 const horaOriginal = reservaAEliminar.hora;
                 const tipoOriginal = reservaAEliminar.tipo;
+                const fechaOriginalReserva = new Date(reservaAEliminar.dia);
 
-                reservas = reservas.filter(r =>
-                    !(r.equipo === equipoOriginal && r.hora === horaOriginal && r.tipo === tipoOriginal && r.esFijo && new Date(r.dia) >= new Date(reservaAEliminar.dia))
-                );
+                const nuevasReservas = [];
+                for (let i = 0; i < reservas.length; i++) {
+                    const r = reservas[i];
+                    if (!(r.equipo === equipoOriginal && r.hora === horaOriginal && r.tipo === tipoOriginal && r.esFijo && new Date(r.dia) >= fechaOriginalReserva)) {
+                        nuevasReservas.push(r);
+                    }
+                }
+                reservas = nuevasReservas;
+
             } else {
-                reservas = reservas.filter(r => r.id !== idReservaAEliminar);
+                const nuevasReservas = [];
+                for (let i = 0; i < reservas.length; i++) {
+                    if (reservas[i].id !== idReservaAEliminar) {
+                        nuevasReservas.push(reservas[i]);
+                    }
+                }
+                reservas = nuevasReservas;
             }
 
             mostrarReservas();
@@ -184,9 +225,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function canchasDisponibles(tipo, dia, hora) {
-        const ocupadas = reservas.filter(r =>
-            r.tipo == tipo && r.dia === dia && r.hora == hora && (!reservaPendiente || r.id !== reservaPendiente.id)
-        ).length;
+        let ocupadas = 0;
+        for (let i = 0; i < reservas.length; i++) {
+            const r = reservas[i];
+            if (r.tipo == tipo && r.dia === dia && r.hora == hora && (!reservaPendiente || r.id !== reservaPendiente.id)) {
+                ocupadas++;
+            }
+        }
         return disponibilidadTotal[tipo] - ocupadas;
     }
 
@@ -194,21 +239,35 @@ document.addEventListener('DOMContentLoaded', function () {
         const dia = diaReservaInput.value;
         const hora = horaTurnoSelect.value;
         const valorActual = tipoCanchaSelect.value;
-
         tipoCanchaSelect.innerHTML = "";
 
-        [5, 8, 11].forEach(tipo => {
-            const disponibles = (dia && hora) ? canchasDisponibles(tipo, dia, hora) : disponibilidadTotal[tipo];
+        const tiposDeCancha = [5, 8, 11];
+        tiposDeCancha.forEach(function (tipo) {
+            const disponibles = (dia && hora) ? canchasDisponibles(String(tipo), dia, hora) : disponibilidadTotal[tipo];
             const opcion = document.createElement('option');
             opcion.value = tipo;
-            opcion.textContent = `Fútbol ${tipo} (Disponibles: ${disponibles})`;
+            opcion.textContent = 'Fútbol ' + tipo + ' (Disponibles: ' + disponibles + ')';
             opcion.disabled = disponibles <= 0;
             tipoCanchaSelect.appendChild(opcion);
         });
-        if (Array.from(tipoCanchaSelect.options).some(opt => opt.value === valorActual && !opt.disabled)) {
+
+        let valorActualValido = false;
+        for (let i = 0; i < tipoCanchaSelect.options.length; i++) {
+            if (tipoCanchaSelect.options[i].value === valorActual && !tipoCanchaSelect.options[i].disabled) {
+                valorActualValido = true;
+                break;
+            }
+        }
+        if (valorActualValido) {
             tipoCanchaSelect.value = valorActual;
         } else {
-            const primeraOpcionValida = Array.from(tipoCanchaSelect.options).find(opt => !opt.disabled);
+            let primeraOpcionValida = null;
+            for (let i = 0; i < tipoCanchaSelect.options.length; i++) {
+                if (!tipoCanchaSelect.options[i].disabled) {
+                    primeraOpcionValida = tipoCanchaSelect.options[i];
+                    break;
+                }
+            }
             if (primeraOpcionValida) {
                 tipoCanchaSelect.value = primeraOpcionValida.value;
             }
@@ -226,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function () {
         hoy.setHours(0, 0, 0, 0);
 
         for (let i = 0; i < 4; i++) {
-            const nuevaFecha = new Date(fechaInicial);
+            const nuevaFecha = new Date(fechaInicial.getTime()); // Clonar fecha
             nuevaFecha.setDate(fechaInicial.getDate() + (i * 7));
             if (nuevaFecha >= hoy) {
                 fechas.push(nuevaFecha.toISOString().split('T')[0]);
@@ -238,9 +297,13 @@ document.addEventListener('DOMContentLoaded', function () {
     function setMinDate() {
         const today = new Date();
         const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const dd = String(today.getDate()).padStart(2, '0');
-        diaReservaInput.min = `${yyyy}-${mm}-${dd}`;
+        let mm = today.getMonth() + 1;
+        let dd = today.getDate();
+
+        if (mm < 10) { mm = '0' + mm; } else { mm = String(mm); }
+        if (dd < 10) { dd = '0' + dd; } else { dd = String(dd); }
+
+        diaReservaInput.min = yyyy + '-' + mm + '-' + dd;
     }
 
     diaReservaInput.addEventListener('change', actualizarOpcionesTipoCancha);
@@ -277,50 +340,45 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-
         const precioUnitario = precios[tipo];
         let fechasReserva = [dia];
-        let esTurnoFijoReal = esFijo;
         if (esFijo && (!reservaPendiente || !reservaPendiente.esFijo || reservaPendiente.dia !== dia)) {
             fechasReserva = obtenerFechasTurnoFijoDesde(dia);
             if (fechasReserva.length === 0) {
                 alert("No hay fechas futuras disponibles para el turno fijo desde el día seleccionado.");
                 return;
             }
-            for (const fecha of fechasReserva) {
-                let idExcluir = reservaPendiente ? reservaPendiente.id : null;
-                if (!hayDisponibilidad(tipo, fecha, hora)) {
-                    alert(`No hay disponibilidad para Fútbol ${tipo} el día ${new Date(fecha + 'T00:00:00').toLocaleDateString()} a las ${hora}:00 hs.`);
+            for (let i = 0; i < fechasReserva.length; i++) {
+                const fechaIterada = fechasReserva[i];
+                if (!hayDisponibilidad(tipo, fechaIterada, hora)) {
+                    alert('No hay disponibilidad para Fútbol ' + tipo + ' el día ' + new Date(fechaIterada + 'T00:00:00').toLocaleDateString() + ' a las ' + hora + ':00 hs.');
                     return;
                 }
             }
         } else {
-            esTurnoFijoReal = false;
             if (!hayDisponibilidad(tipo, dia, hora)) {
-                alert(`No hay disponibilidad para Fútbol ${tipo} el día ${new Date(dia + 'T00:00:00').toLocaleDateString()} a las ${hora}:00 hs.`);
+                alert('No hay disponibilidad para Fútbol ' + tipo + ' el día ' + new Date(dia + 'T00:00:00').toLocaleDateString() + ' a las ' + hora + ':00 hs.');
                 return;
             }
         }
 
         const total = precioUnitario * (reservaPendiente && !esFijo ? 1 : fechasReserva.length);
-
         let ulFechasHtml = "<ul>";
-        fechasReserva.forEach(f => {
-            ulFechasHtml += `<li>${new Date(f + 'T00:00:00').toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' })}</li>`;
+        fechasReserva.forEach(function (f) {
+            ulFechasHtml += '<li>' + new Date(f + 'T00:00:00').toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' }) + '</li>';
         });
         ulFechasHtml += "</ul>";
 
-        textoPrecioP.innerHTML = `
-            <p><strong>Equipo:</strong> ${nombre}</p>
-            <p><strong>Cancha:</strong> Fútbol ${tipo}</p>
-            <p><strong>Hora:</strong> ${hora}:00 hs</p>
-            <p><strong>${(esFijo && fechasReserva.length > 1) ? 'Turno Fijo Semanal (4 semanas)' : 'Turno Único'}</strong></p>
-            <p><strong>Precio por turno:</strong> $${precioUnitario.toLocaleString()}</p>
-            <p><strong>Cantidad de turnos:</strong> ${fechasReserva.length}</p>
-            <p><strong>TOTAL A PAGAR: $${total.toLocaleString()}</strong></p>
-            <p><strong>Día(s):</strong></p>
-            ${ulFechasHtml}
-        `;
+        textoPrecioP.innerHTML =
+            '<p><strong>Equipo:</strong> ' + nombre + '</p>' +
+            '<p><strong>Cancha:</strong> Fútbol ' + tipo + '</p>' +
+            '<p><strong>Hora:</strong> ' + hora + ':00 hs</p>' +
+            '<p><strong>' + ((esFijo && fechasReserva.length > 1) ? 'Turno Fijo Semanal (4 semanas)' : 'Turno Único') + '</strong></p>' +
+            '<p><strong>Precio por turno:</strong> $' + precioUnitario.toLocaleString() + '</p>' +
+            '<p><strong>Cantidad de turnos:</strong> ' + fechasReserva.length + '</p>' +
+            '<p><strong>TOTAL A PAGAR: $' + total.toLocaleString() + '</strong></p>' +
+            '<p><strong>Día(s):</strong></p>' +
+            ulFechasHtml;
 
         confirmacionPagoDiv.style.display = "block";
         confirmacionPagoDiv.scrollIntoView({ behavior: 'smooth' });
@@ -346,7 +404,13 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!reservaPendiente) return;
 
         if (reservaPendiente.editando) {
-            const index = reservas.findIndex(r => r.id === reservaPendiente.id);
+            let index = -1;
+            for (let i = 0; i < reservas.length; i++) {
+                if (reservas[i].id === reservaPendiente.id) {
+                    index = i;
+                    break;
+                }
+            }
             if (index !== -1) {
                 reservas[index].equipo = reservaPendiente.equipo;
                 reservas[index].dia = reservaPendiente.fechas[0];
@@ -359,7 +423,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert("Reserva actualizada con éxito.");
             }
         } else {
-            reservaPendiente.fechas.forEach((fecha, index) => {
+            for (let i = 0; i < reservaPendiente.fechas.length; i++) {
+                const fecha = reservaPendiente.fechas[i];
                 reservas.push({
                     id: idReserva++,
                     equipo: reservaPendiente.equipo,
@@ -367,9 +432,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     dia: fecha,
                     hora: reservaPendiente.hora,
                     esFijo: reservaPendiente.esFijo,
-                    esFijoOriginal: reservaPendiente.esFijo && index === 0
+                    esFijoOriginal: reservaPendiente.esFijo && i === 0
                 });
-            });
+            }
             alert("Reserva(s) creada(s) con éxito.");
         }
 
